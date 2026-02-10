@@ -31,8 +31,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
-app.use(express.static(path.join(__dirname, '../public')))
+app.use(express.static(path.join(__dirname, '../public')));
 
 
 app.get('/api/health', (req, res) => {
@@ -55,23 +54,22 @@ app.get('/api/verify', authenticateToken, verify);
 app.get('/api/rooms', authenticateToken, getRooms);
 app.post('/api/rooms', authenticateToken, createRoom);
 
-
 app.get('/api/users', getAllUsers);
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
 
 
 setupWebSocketServer(server);
 
-server.listen(config.PORT, () => {
-  
-  console.log(` Server running on http://localhost:${config.PORT}`);
-  console.log(` WebSocket running on ws://localhost:${config.PORT}`);
-  console.log(` Environment: ${config.NODE_ENV}`);
 
-})
+server.listen(config.PORT, () => {
+  console.log('');
+  console.log('🚀 ========================================');
+  console.log(`📡 Server running on http://localhost:${config.PORT}`);
+  console.log(`🔌 WebSocket running on ws://localhost:${config.PORT}`);
+  console.log(`📝 Environment: ${config.NODE_ENV}`);
+  console.log('🚀 ========================================');
+  console.log('');
+});
+
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
