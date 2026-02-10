@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws'
 
-export interface User{
+export interface user{
     username:string,
     email: string,
     phone: string,
