@@ -75,7 +75,7 @@ export const sendOTPEmail = async (email: string, otp:string): Promise<boolean> 
       text: `Your verification code is: ${otp}\n\nThis code will expire in ${otpConfig.EXPIRY_MINUTES} minutes.\n\nIf you didn't request this code, please ignore this email.`,
     };
     await transporter.sendMail(mailOptions);
-    console.log(`📧 OTP email sent to ${email}`);
+    console.log(` OTP email sent to ${email}`);
     return true;
 
   }catch (error) {
@@ -84,3 +84,41 @@ export const sendOTPEmail = async (email: string, otp:string): Promise<boolean> 
   }
 
 }
+
+export const sendOTPSMS = async (phone: string, otp: string): Promise<boolean> => {
+  try {
+    if (!smsConfig.TWILIO_ACCOUNT_SID || !smsConfig.TWILIO_AUTH_TOKEN) {
+      console.error(' Twilio credentials not configured');
+      return false;
+    }
+
+    const client = twilio(smsConfig.TWILIO_ACCOUNT_SID, smsConfig.TWILIO_AUTH_TOKEN);
+
+    await client.messages.create({
+      body: `Your Chat App verification code is: ${otp}. Valid for ${otpConfig.EXPIRY_MINUTES} minutes. Do not share this code.`,
+      from: smsConfig.TWILIO_PHONE_NUMBER,
+      to: phone,
+    });
+
+    console.log(`📱 OTP SMS sent to ${phone}`);
+    return true;
+  } catch (error) {
+    console.error(' Error sending OTP SMS:', error);
+    return false;
+  }
+};
+
+setInterval(()=>{
+    const now = new Date();
+    let cleanedCount = 0;
+
+    Object.keys(otpStore).forEach((identifier) =>{
+        if(now > otpStore[identifier].expiresAt){
+            delete otpStore[identifier];
+            cleanedCount++;
+        }
+    })
+    if(cleanedCount>0){
+        console.log(`Clenaed ${cleanedCount} expired OTP(s)`)
+    }
+},10*60*1000);
