@@ -37,7 +37,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
       websocket.connect().then(() => {
         setIsConnected(true);
         
-        // Get token from cookie
         const token = document.cookie
           .split('; ')
           .find(row => row.startsWith('token='))
