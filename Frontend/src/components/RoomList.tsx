@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Users, Hash } from 'lucide-react';
 import { getRooms } from '../services/api';
-import { Room } from '../types';
+import type { Room } from '../types';
 import { useWebSocket } from '../context/WebSocketContext';
 
 const RoomList: React.FC = () => {

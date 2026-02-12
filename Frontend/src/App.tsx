@@ -1,4 +1,6 @@
 import React from 'react';
+import type { AuthResponse, LoginRequest, RegisterRequest } from './types';
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WebSocketProvider } from './context/WebSocketContext';
