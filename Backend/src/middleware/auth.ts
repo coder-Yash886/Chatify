@@ -15,7 +15,7 @@ export const authenticateToken = (
   const token = req.cookies.token;
 
   if (!token) {
-    res.status(401).json({ error: 'Access denied. No token provided.' });
+    res.status(401).json({ error: 'Access denied' });
     return;
   }
 
@@ -24,6 +24,6 @@ export const authenticateToken = (
     req.user = verified;
     next();
   } catch (err) {
-    res.status(400).json({ error: 'Invalid or expired token' });
+    res.status(400).json({ error: 'Invalid token' });
   }
 };
