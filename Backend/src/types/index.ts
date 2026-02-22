@@ -1,7 +1,5 @@
 import { WebSocket } from 'ws';
 
-// ==================== User Types ====================
-
 export interface User {
   username: string;
   email: string;
@@ -15,7 +13,6 @@ export interface AuthPayload {
   identifier: string;
 }
 
-// ==================== OTP Types ====================
 
 export interface OTP {
   code: string;
@@ -26,8 +23,6 @@ export interface OTP {
 export interface OTPStore {
   [identifier: string]: OTP;
 }
-
-// ==================== Auth Request/Response Types ====================
 
 export interface RegisterRequest {
   username: string;
@@ -52,15 +47,12 @@ export interface AuthResponse {
   token?: string;
 }
 
-// ==================== Message Types ====================
 
 export interface Message {
   username: string;
   text: string;
   timestamp: string;
 }
-
-// ==================== Room Types ====================
 
 export interface Room {
   name: string;
@@ -74,7 +66,6 @@ export interface RoomInfo {
   userCount: number;
 }
 
-// ==================== WebSocket Types ====================
 
 export interface AuthenticatedWebSocket extends WebSocket {
   username: string;
@@ -108,7 +99,6 @@ export interface WebSocketMessage {
   timestamp?: string;
 }
 
-// ==================== WebSocket Payload Types ====================
 
 export interface JoinRoomPayload {
   roomId: string;
@@ -128,19 +118,39 @@ export interface UserLeftPayload {
   userCount: number;
 }
 
-// ==================== Environment Config ====================
-
 export interface EnvConfig {
   PORT: number;
   JWT_SECRET: string;
   NODE_ENV: string;
 }
 
-// ==================== Active User ====================
 
 export interface ActiveUser {
   username: string;
   identifier: string;
   currentRoom: string | null;
   ws: AuthenticatedWebSocket;
+}
+
+export interface Friend{
+  username:string;
+  identifier: string;
+  isOnline: boolean;
+  lastSeen?: Date;
+}
+
+export interface FriendRequest{
+  from: string;
+  to: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: Date;
+}
+
+export interface Notification {
+  id: string;
+  type: 'message' | 'friend_request' | 'friend_accepted' | 'room_invite';
+  from: string;
+  content: string;
+  timestamp: Date;
+  isRead: boolean;
 }
