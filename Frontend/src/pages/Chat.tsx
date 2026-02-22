@@ -1,11 +1,15 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, LogOut, Users } from 'lucide-react';
+import { Send, LogOut, Users, LayoutDashboard, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWebSocket } from '../context/WebSocketContext';
 import ChatMessage from '../components/ChatMessage';
 import RoomList from '../components/RoomList';
 import TypingIndicator from '../components/TypingIndicator';
+import Dashboard from '../components/Dashboard';
+
+type ActiveTab = 'dashboard' | 'chat';
 
 const Chat: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +25,7 @@ const Chat: React.FC = () => {
     isConnected,
   } = useWebSocket();
 
+  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [messageText, setMessageText] = useState('');
   const [typingTimeout, setTypingTimeout] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,7 +56,7 @@ const Chat: React.FC = () => {
         clearTimeout(typingTimeout);
       }
 
-      const timeout = setTimeout(() => {
+      const timeout = window.setTimeout(() => {
         sendStopTyping();
       }, 2000);
 
@@ -97,18 +102,52 @@ const Chat: React.FC = () => {
           </div>
         </div>
 
-        {/* Rooms */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            Rooms
-          </h3>
-          <RoomList />
+        {/* Navigation Tabs */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition ${
+                activeTab === 'dashboard'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition ${
+                activeTab === 'chat'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Rooms
+            </button>
+          </div>
         </div>
+
+        {/* Rooms (only show when chat tab active) */}
+        {activeTab === 'chat' && (
+          <div className="flex-1 overflow-y-auto p-4">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Rooms
+            </h3>
+            <RoomList />
+          </div>
+        )}
       </div>
 
-      {/* Main Chat Area */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {currentRoom ? (
+        {activeTab === 'dashboard' ? (
+          <div className="flex-1 overflow-y-auto p-6">
+            <Dashboard />
+          </div>
+        ) : currentRoom ? (
           <>
             {/* Chat Header */}
             <div className="bg-white border-b border-gray-200 p-4">
@@ -179,7 +218,7 @@ const Chat: React.FC = () => {
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-gray-400">
               <p className="text-lg font-medium">Select a room to start chatting</p>
-              <p className="text-sm">Choose from the list on the left</p>
+              <p className="text-sm">Choose from the Rooms tab</p>
             </div>
           </div>
         )}

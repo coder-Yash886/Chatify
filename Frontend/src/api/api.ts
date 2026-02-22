@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// ==================== Auth APIs ====================
 
 export interface RegisterRequest {
   username: string;
@@ -79,5 +78,43 @@ export const createRoom = async (roomId: string, roomName: string): Promise<any>
   const response = await api.post('/api/rooms', { roomId, roomName });
   return response.data;
 };
+
+
+export interface Friend {
+  username: string;
+  identifier: string;
+  isOnline: boolean;
+  lastSeen?: string;
+}
+
+export const getFriends = async (): Promise<{ success: boolean; friends: Friend[]; onlineCount: number }> => {
+  const response = await api.get('/api/friends');
+  return response.data;
+};
+
+export const addFriend = async (friendEmail: string): Promise<AuthResponse> => {
+  const response = await api.post('/api/friends/add', { friendEmail });
+  return response.data;
+};
+
+
+export interface Notification {
+  id: string;
+  type: 'message' | 'friend_request' | 'friend_accepted' | 'room_invite';
+  from: string;
+  content: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+export const getNotifications = async (): Promise<{ success: boolean; notifications: Notification[]; unreadCount: number }> => {
+  const response = await api.get('/api/notifications');
+  return response.data;
+};
+
+export const markNotificationAsRead = async (notificationId: string): Promise<void> => {
+  await api.post('/api/notifications/read', { notificationId });
+};
+
 
 export default api;

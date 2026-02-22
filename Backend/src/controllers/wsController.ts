@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import { AuthenticatedWebSocket, AuthPayload, Message, ActiveUser } from '../types';
 import { rooms, addUserToRoom, removeUserFromRoom } from './roomController';
 import config from '../utils/config';
+import { setUserOffline, setUserOnline } from './friendsControllers';
+import { createNotification } from './notificationsController';
 
 const activeUsers = new Map<string, ActiveUser>();
 
@@ -103,6 +105,9 @@ const handleAuth = (ws: AuthenticatedWebSocket, payload: { token: string }, wss:
       ws,
     });
 
+    // Set user online
+    setUserOnline(ws.identifier);
+
     sendMessage(ws, 'auth-success', { username: ws.username, message: 'Authenticated successfully' });
     console.log(`✅ User authenticated: ${ws.username}`);
   } catch (error) {
@@ -188,6 +193,22 @@ const handleSendMessage = (ws: AuthenticatedWebSocket, payload: { text: string }
   }
 
   broadcastToRoom(ws.currentRoom, 'new-message', message, wss);
+  
+  // Create notification for users not in this room
+  room.users.forEach((username) => {
+    if (username !== ws.username) {
+      const userEntry = Array.from(activeUsers.values()).find(u => u.username === username);
+      if (userEntry && userEntry.currentRoom !== ws.currentRoom) {
+        createNotification(
+          userEntry.identifier,
+          'message',
+          ws.username,
+          `New message in ${ws.currentRoom}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`
+        );
+      }
+    }
+  });
+
   console.log(`💬 ${ws.username} in ${ws.currentRoom}: ${text}`);
 };
 
@@ -212,6 +233,9 @@ const handleDisconnect = (ws: AuthenticatedWebSocket, wss: WebSocketServer): voi
     }
   }
 
+  // Set user offline
+  setUserOffline(ws.identifier);
+  
   activeUsers.delete(ws.identifier);
 };
 
