@@ -117,4 +117,79 @@ export const markNotificationAsRead = async (notificationId: string): Promise<vo
 };
 
 
+export interface DirectMessage {
+  id: string;
+  from: string;
+  to: string;
+  text: string;
+  timestamp: string;
+  isRead: boolean;
+  type: 'text' | 'image' | 'file';
+  fileUrl?: string;
+  fileName?: string;
+}
+
+export interface Conversation {
+  id: string;
+  otherUser: string;
+  lastMessage?: {
+    text: string;
+    timestamp: string;
+  };
+  unreadCount: number;
+}
+
+export const getConversations = async (): Promise<{ success: boolean; conversations: Conversation[] }> => {
+  const response = await api.get('/api/dm/conversations');
+  return response.data;
+};
+
+export const getDirectMessages = async (otherUserId: string): Promise<{ success: boolean; messages: DirectMessage[] }> => {
+  const response = await api.get(`/api/dm/messages/${otherUserId}`);
+  return response.data;
+};
+
+export const sendDirectMessage = async (to: string, text: string, type?: string): Promise<{ success: boolean; message: DirectMessage }> => {
+  const response = await api.post('/api/dm/send', { to, text, type });
+  return response.data;
+};
+
+export const markDMAsRead = async (otherUserId: string): Promise<void> => {
+  await api.post('/api/dm/read', { otherUserId });
+};
+
+
+export interface UserProfile {
+  username: string;
+  email: string;
+  avatar?: string;
+  bio?: string;
+  status: 'online' | 'offline' | 'away' | 'busy';
+  statusMessage?: string;
+  createdAt: string;
+  lastSeen: string;
+}
+
+export const getUserProfile = async (userId?: string): Promise<{ success: boolean; profile: UserProfile }> => {
+  const url = userId ? `/api/profile/${userId}` : '/api/profile';
+  const response = await api.get(url);
+  return response.data;
+};
+
+export const updateUserProfile = async (data: Partial<UserProfile>): Promise<{ success: boolean; profile: UserProfile }> => {
+  const response = await api.put('/api/profile', data);
+  return response.data;
+};
+
+export const updateUserStatus = async (status: string): Promise<{ success: boolean; status: string }> => {
+  const response = await api.patch('/api/profile/status', { status });
+  return response.data;
+};
+
+export const searchUsers = async (query: string): Promise<{ success: boolean; users: UserProfile[] }> => {
+  const response = await api.get('/api/users/search', { params: { query } });
+  return response.data;
+};
+
+
 export default api;
