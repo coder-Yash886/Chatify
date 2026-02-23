@@ -154,3 +154,60 @@ export interface Notification {
   timestamp: Date;
   isRead: boolean;
 }
+
+export interface DirectMessage{
+  id:string;
+  from: string;
+  to: string;
+  text: string;
+  timestamp: Date;
+  isRead: boolean;
+  type: 'text' | 'image' | 'file';
+  fileUrl?: string;
+  fileName?: string;
+}
+
+export interface Conversation {
+  participants: [string, string];
+  lastMessage?: DirectMessage;
+  unreadCount: number;
+  messages: DirectMessage[];
+}
+
+
+export interface UserProfile {
+  username: string;
+  email: string;
+  avatar?: string;
+  bio?: string;
+  status: 'online' | 'offline' | 'away' | 'busy';
+  statusMessage?: string;
+  createdAt: Date;
+  lastSeen: Date;
+}
+
+export interface MessageReaction {
+  messageId: string;
+  emoji: string;
+  users: string[];
+}
+
+
+export interface TypingStatus {
+  userId: string;
+  username: string;
+  isTyping: boolean;
+  conversationId?: string;
+  roomId?: string;
+}
+
+export interface FileUpload {
+  id: string;
+  filename: string;
+  originalName: string;
+  mimetype: string;
+  size: number;
+  url: string;
+  uploadedBy: string;
+  uploadedAt: Date;
+}
