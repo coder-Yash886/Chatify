@@ -3,7 +3,11 @@ import { Users, Bell, MessageSquare, UserPlus } from 'lucide-react';
 import { getFriends, getNotifications, type Friend, type Notification } from '../api/api';
 import { formatDistanceToNow } from 'date-fns';
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onStartDM?: (userId: string) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onStartDM }) => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
@@ -12,7 +16,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 10000); // Refresh every 10s
+    const interval = setInterval(loadData, 10000); 
     return () => clearInterval(interval);
   }, []);
 
@@ -47,7 +51,7 @@ const Dashboard: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Total Friends */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Friends</p>
@@ -60,7 +64,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Online Friends */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Online Now</p>
@@ -76,7 +80,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Unread Notifications */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Notifications</p>
@@ -95,7 +99,7 @@ const Dashboard: React.FC = () => {
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-800">Friends</h3>
-              <button className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center gap-1">
+              <button className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center gap-1 transition">
                 <UserPlus className="w-4 h-4" />
                 Add Friend
               </button>
@@ -103,13 +107,17 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="p-6">
             {friends.length === 0 ? (
-              <p className="text-center text-gray-400 py-8">No friends yet</p>
+              <div className="text-center text-gray-400 py-8">
+                <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="font-medium">No friends yet</p>
+                <p className="text-sm mt-1">Add friends to start chatting</p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {friends.slice(0, 5).map((friend) => (
                   <div
                     key={friend.identifier}
-                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition"
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
                       <div className="relative">
@@ -117,19 +125,37 @@ const Dashboard: React.FC = () => {
                           {friend.username[0].toUpperCase()}
                         </div>
                         {friend.isOnline && (
-                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
                         )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">{friend.username}</p>
                         <p className="text-xs text-gray-500">
-                          {friend.isOnline ? 'Online' : 'Offline'}
+                          {friend.isOnline ? (
+                            <span className="text-green-600 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                              Online
+                            </span>
+                          ) : (
+                            'Offline'
+                          )}
                         </p>
                       </div>
                     </div>
-                    <MessageSquare className="w-5 h-5 text-gray-400 hover:text-primary-600 cursor-pointer" />
+                    <button
+                      onClick={() => onStartDM?.(friend.identifier)}
+                      className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition opacity-0 group-hover:opacity-100"
+                      title="Send Message"
+                    >
+                      <MessageSquare className="w-5 h-5" />
+                    </button>
                   </div>
                 ))}
+                {friends.length > 5 && (
+                  <button className="w-full text-center text-sm text-primary-600 hover:text-primary-700 font-medium py-2">
+                    View all {friends.length} friends
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -142,32 +168,47 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="p-6">
             {notifications.length === 0 ? (
-              <p className="text-center text-gray-400 py-8">No notifications</p>
+              <div className="text-center text-gray-400 py-8">
+                <Bell className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="font-medium">No notifications</p>
+                <p className="text-sm mt-1">You're all caught up!</p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {notifications.slice(0, 5).map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-3 rounded-lg border ${
+                    className={`p-3 rounded-lg border transition hover:shadow-sm ${
                       notification.isRead
                         ? 'bg-white border-gray-100'
                         : 'bg-primary-50 border-primary-200'
                     }`}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">{notification.from}</p>
-                        <p className="text-sm text-gray-600 mt-1">{notification.content}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-800 truncate">
+                            {notification.from}
+                          </p>
+                          {!notification.isRead && (
+                            <span className="flex-shrink-0 w-2 h-2 bg-primary-500 rounded-full"></span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {notification.content}
+                        </p>
                         <p className="text-xs text-gray-400 mt-1">
                           {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
                         </p>
                       </div>
-                      {!notification.isRead && (
-                        <div className="w-2 h-2 bg-primary-500 rounded-full mt-1"></div>
-                      )}
                     </div>
                   </div>
                 ))}
+                {notifications.length > 5 && (
+                  <button className="w-full text-center text-sm text-primary-600 hover:text-primary-700 font-medium py-2">
+                    View all notifications
+                  </button>
+                )}
               </div>
             )}
           </div>
