@@ -179,7 +179,7 @@ const Auth: React.FC = () => {
             {step === 'credentials' ? (
               <>
                 <div className="mb-8">
-                  <h2 className="text-5xl font-bold text-white mb-2">
+                  <h2 className="text-3xl font-bold text-white mb-2">
                     {mode === 'login' ? 'Welcome back' : 'Create Account'}
                   </h2>
                   <p className="text-gray-400">
@@ -196,13 +196,13 @@ const Auth: React.FC = () => {
                         Full Name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-0" />
+                        <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
-                          placeholder="Enter Your Full Name"
-                          className="w-full pl-18 pr-6 py-3.5 bg-white/9 border border-white/15 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                          placeholder="John Doe"
+                          className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
                         />
                       </div>
                     </div>
@@ -213,12 +213,12 @@ const Auth: React.FC = () => {
                       Email Address
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-0 h-5" />
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your Email"
+                        placeholder="you@example.com"
                         className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
                       />
                     </div>
@@ -228,8 +228,8 @@ const Auth: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Password
                     </label>
-                    <div className="relative ">
-                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-0 h-5" />
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="password"
                         value={password}
@@ -255,15 +255,15 @@ const Auth: React.FC = () => {
                   <button
                     onClick={handleSubmitCredentials}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white py-3.5 rounded-xl font-semibold hover:from-purple-600 hover:to-violet-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt"
+                    className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white py-3.5 rounded-xl font-semibold hover:from-purple-600 hover:to-violet-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   >
                     {loading ? 'Processing...' : mode === 'register' ? 'Create Account' : 'Sign In'}
                   </button>
 
-                  <div className="text-center mt-6">
+                  <div className="text-center">
                     <button
                       onClick={switchMode}
-                      className="text-purple-400 hover:text-purple-300 text-sm font-medium transition "
+                      className="text-purple-400 hover:text-purple-300 text-sm font-medium transition"
                     >
                       {mode === 'login' 
                         ? "Don't have an account? Sign up" 
