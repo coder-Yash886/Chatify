@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, MessageCircle } from 'lucide-react';
-import OTPInput from '../components/OTPInput';
+import { Mail, Lock, User, Eye, EyeOff, MessageSquare } from 'lucide-react';
 import { register, login, verifyOTP, resendOTP } from '../api/api';
 import { useAuth } from '../context/AuthContext';
+import OTPInput from '../components/OTPInput';
 
-type AuthStep = 'credentials' | 'otp';
 type AuthMode = 'login' | 'register';
+type AuthStep = 'credentials' | 'otp';
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const Auth: React.FC = () => {
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [step, setStep] = useState<AuthStep>('credentials');
+  const [showPassword, setShowPassword] = useState(false);
   
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -29,29 +30,18 @@ const Auth: React.FC = () => {
     setMessage('');
 
     if (mode === 'register') {
-      if (!username.trim()) {
-        setError('Full name is required');
-        return;
-      }
-      if (username.length < 3) {
+      if (!username.trim() || username.length < 3) {
         setError('Name must be at least 3 characters');
         return;
       }
     }
 
-    if (!email.trim()) {
-      setError('Email is required');
-      return;
-    }
-    if (!email.includes('@')) {
+    if (!email.trim() || !email.includes('@')) {
       setError('Please enter a valid email');
       return;
     }
-    if (!password.trim()) {
-      setError('Password is required');
-      return;
-    }
-    if (password.length < 6) {
+
+    if (!password.trim() || password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
@@ -80,7 +70,7 @@ const Auth: React.FC = () => {
 
         if (response.success && response.token) {
           authLogin(email.split('@')[0], email);
-          navigate('/dashboard');
+          navigate('/chat');
         } else {
           setError(response.error || 'Login failed');
         }
@@ -104,7 +94,7 @@ const Auth: React.FC = () => {
 
       if (response.success && response.token) {
         authLogin(username, email);
-        navigate('/dashboard');
+        navigate('/chat');
       } else {
         setError(response.error || 'Invalid verification code');
         setOtp('');
@@ -127,8 +117,6 @@ const Auth: React.FC = () => {
       if (response.success) {
         setMessage('New code sent successfully');
         setOtp('');
-      } else {
-        setError(response.error || 'Failed to resend code');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to resend code');
@@ -139,53 +127,81 @@ const Auth: React.FC = () => {
 
   const switchMode = () => {
     setMode(mode === 'login' ? 'register' : 'login');
-    setUsername('');
-    setEmail('');
-    setPassword('');
-    setOtp('');
     setStep('credentials');
     setError('');
     setMessage('');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background blobs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
-
-      <div className="w-full max-w-6xl flex items-center justify-between gap-12 relative z-10">
-        {/* Left side - Branding */}
-        <div className="hidden lg:flex flex-1 flex-col items-center text-white">
-          <div className="relative mb-8">
-            <div className="w-40 h-40 bg-gradient-to-br from-purple-400 to-violet-600 rounded-3xl flex items-center justify-center shadow-2xl">
-              <MessageCircle className="w-20 h-20 text-white" strokeWidth={1.5} />
-            </div>
-            <div className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            </div>
-          </div>
-          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-            Chattify
-          </h1>
-          <p className="text-xl text-purple-200 text-center max-w-md">
-            Connect instantly with friends and colleagues. Real-time messaging, secure, and fast.
-          </p>
+    <div className="min-h-screen bg-[#0a0a0a] flex">
+      {/* Left Panel - Welcome Message */}
+      <div className="hidden lg:flex flex-1 items-center justify-center p-12 bg-gradient-to-br from-gray-900 to-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iIzMzMyIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9nPjwvc3ZnPg==')] opacity-5"></div>
+        
+        <div className="relative z-10 text-center max-w-md">
+          {step === 'credentials' ? (
+            <>
+              <div className="mb-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl">
+                  <MessageSquare className="w-10 h-10 text-white" strokeWidth={2} />
+                </div>
+              </div>
+              <h1 className="text-5xl font-bold text-white mb-4">
+                Welcome {mode === 'login' ? 'Back' : 'to Chatty'}
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed">
+                {mode === 'login' 
+                  ? 'Sign in to continue your conversations and catch up with your messages.'
+                  : 'Create an account to start connecting with friends and colleagues.'}
+              </p>
+              <div className="mt-12">
+                <img 
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Cg fill='%23333'%3E%3Crect x='50' y='50' width='80' height='60' rx='8'/%3E%3Crect x='150' y='70' width='100' height='40' rx='8'/%3E%3Crect x='270' y='50' width='80' height='60' rx='8'/%3E%3C/g%3E%3C/svg%3E" 
+                  alt="Chat illustration"
+                  className="w-full opacity-20"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl">
+                  <Mail className="w-10 h-10 text-white" strokeWidth={2} />
+                </div>
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4">
+                Check Your Email
+              </h1>
+              <p className="text-gray-400 text-lg">
+                We've sent a verification code to your email address. Please enter it below to complete your registration.
+              </p>
+            </>
+          )}
         </div>
+      </div>
 
-        {/* Right side - Auth Form */}
-        <div className="flex-1 max-w-md">
-          <div className="bg-gray-900/40 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10">
+      {/* Right Panel - Auth Form */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          {/* Logo for mobile */}
+          <div className="lg:hidden mb-8 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl mb-4">
+              <MessageSquare className="w-8 h-8 text-white" strokeWidth={2} />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Chatty</h2>
+          </div>
+
+          <div className="bg-[#1a1a1a] rounded-2xl p-8 shadow-2xl border border-gray-800">
             {step === 'credentials' ? (
               <>
                 <div className="mb-8">
-                  <h2 className="text-5xl font-bold text-white mb-2">
-                    {mode === 'login' ? 'Welcome back' : 'Create Account'}
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {mode === 'login' ? 'Welcome Back' : 'Create Account'}
                   </h2>
-                  <p className="text-gray-400">
+                  <p className="text-gray-400 text-sm">
                     {mode === 'login' 
-                      ? 'Enter your credentials to continue' 
-                      : 'Get started with Chattify today'}
+                      ? 'Sign in to your account' 
+                      : 'Get started with Chatty'}
                   </p>
                 </div>
 
@@ -196,13 +212,13 @@ const Auth: React.FC = () => {
                         Full Name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-0" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
-                          placeholder="Enter Your Full Name"
-                          className="w-full pl-18 pr-6 py-3.5 bg-white/9 border border-white/15 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                          placeholder="John Doe"
+                          className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         />
                       </div>
                     </div>
@@ -213,13 +229,13 @@ const Auth: React.FC = () => {
                       Email Address
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-0 h-5" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your Email"
-                        className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                        placeholder="you@example.com"
+                        className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       />
                     </div>
                   </div>
@@ -228,26 +244,33 @@ const Auth: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Password
                     </label>
-                    <div className="relative ">
-                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-0 h-5" />
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                        className="w-full pl-11 pr-11 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
                     </div>
                   </div>
 
                   {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm">
+                    <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm">
                       {error}
                     </div>
                   )}
 
                   {message && (
-                    <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-3 rounded-xl text-sm">
+                    <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl text-sm">
                       {message}
                     </div>
                   )}
@@ -255,7 +278,7 @@ const Auth: React.FC = () => {
                   <button
                     onClick={handleSubmitCredentials}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white py-3.5 rounded-xl font-semibold hover:from-purple-600 hover:to-violet-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt"
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   >
                     {loading ? 'Processing...' : mode === 'register' ? 'Create Account' : 'Sign In'}
                   </button>
@@ -263,11 +286,14 @@ const Auth: React.FC = () => {
                   <div className="text-center mt-6">
                     <button
                       onClick={switchMode}
-                      className="text-purple-400 hover:text-purple-300 text-sm font-medium transition "
+                      className="text-sm text-gray-400 hover:text-white transition"
                     >
                       {mode === 'login' 
-                        ? "Don't have an account? Sign up" 
-                        : 'Already have an account? Sign in'}
+                        ? "Don't have an account? " 
+                        : 'Already have an account? '}
+                      <span className="text-blue-500 font-semibold">
+                        {mode === 'login' ? 'Create account' : 'Sign in'}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -275,16 +301,13 @@ const Auth: React.FC = () => {
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Mail className="w-8 h-8 text-purple-400" />
-                  </div>
                   <h3 className="text-2xl font-bold text-white mb-2">
                     Verify Your Email
                   </h3>
                   <p className="text-gray-400 text-sm">
-                    We sent a 6-digit code to
+                    Enter the 6-digit code sent to
                     <br />
-                    <span className="font-medium text-purple-400">{email}</span>
+                    <span className="font-medium text-blue-400">{email}</span>
                   </p>
                 </div>
 
@@ -296,13 +319,13 @@ const Auth: React.FC = () => {
                 />
 
                 {error && (
-                  <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm text-center">
+                  <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm text-center">
                     {error}
                   </div>
                 )}
 
                 {message && (
-                  <div className="mt-4 bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-3 rounded-xl text-sm text-center">
+                  <div className="mt-4 bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl text-sm text-center">
                     {message}
                   </div>
                 )}
@@ -310,25 +333,20 @@ const Auth: React.FC = () => {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={() => setStep('credentials')}
-                    className="flex-1 bg-white/5 text-gray-300 py-3 rounded-xl font-medium hover:bg-white/10 transition border border-white/10"
+                    className="flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-medium hover:bg-gray-700 transition"
                   >
                     Change Email
                   </button>
                   <button
                     onClick={handleResendOTP}
                     disabled={loading}
-                    className="flex-1 bg-purple-500/20 text-purple-400 py-3 rounded-xl font-medium hover:bg-purple-500/30 transition border border-purple-500/30 disabled:opacity-50"
+                    className="flex-1 bg-blue-600/20 text-blue-400 py-3 rounded-xl font-medium hover:bg-blue-600/30 transition disabled:opacity-50"
                   >
                     Resend Code
                   </button>
                 </div>
               </>
             )}
-          </div>
-
-          {/* Mobile branding */}
-          <div className="lg:hidden text-center mt-6 text-purple-200">
-            <p className="text-sm">© 2025 Chattify. All rights reserved.</p>
           </div>
         </div>
       </div>
