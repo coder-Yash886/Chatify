@@ -12,7 +12,9 @@ import {
   Users,
   X,
   Plus,
-  MessageCircle
+  MessageCircle,
+  Check,
+  CheckCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -25,7 +27,7 @@ import {
   type DirectMessage,
   type UserProfile 
 } from '../api/api';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
 import SettingsModal from '../components/SettingsModel';
 
@@ -45,6 +47,7 @@ const ChatApp: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [onlineFilter, setOnlineFilter] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     loadFriends();
@@ -55,6 +58,8 @@ const ChatApp: React.FC = () => {
   useEffect(() => {
     if (selectedChat) {
       loadMessages(selectedChat.identifier);
+      const interval = setInterval(() => loadMessages(selectedChat.identifier), 3000);
+      return () => clearInterval(interval);
     }
   }, [selectedChat]);
 
@@ -72,26 +77,30 @@ const ChatApp: React.FC = () => {
   };
 
   const loadMessages = async (userId: string) => {
-    setLoading(true);
     try {
       const response = await getDirectMessages(userId);
       setMessages(response.messages);
     } catch (error) {
       console.error('Failed to load messages:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSendMessage = async () => {
-    if (!messageText.trim() || !selectedChat) return;
+    if (!messageText.trim() || !selectedChat || sending) return;
+
+    setSending(true);
+    const tempText = messageText.trim();
+    setMessageText('');
 
     try {
-      const response = await sendDirectMessage(selectedChat.identifier, messageText.trim());
+      const response = await sendDirectMessage(selectedChat.identifier, tempText);
       setMessages([...messages, response.message]);
-      setMessageText('');
+      scrollToBottom();
     } catch (error) {
       console.error('Failed to send message:', error);
+      setMessageText(tempText);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -127,7 +136,9 @@ const ChatApp: React.FC = () => {
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -157,19 +168,22 @@ const ChatApp: React.FC = () => {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setShowSettings(true)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition"
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                title="Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setShowProfile(true)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition"
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                title="Profile"
               >
                 <User className="w-5 h-5" />
               </button>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition"
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition cursor-pointer"
+                title="Logout"
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -197,7 +211,8 @@ const ChatApp: React.FC = () => {
             </div>
             <button
               onClick={() => setShowSearch(true)}
-              className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition"
+              className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition cursor-pointer"
+              title="Add Friend"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -206,7 +221,7 @@ const ChatApp: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setOnlineFilter(!onlineFilter)}
-              className={`text-xs px-3 py-1.5 rounded-lg transition ${
+              className={`text-xs px-3 py-1.5 rounded-lg transition cursor-pointer ${
                 onlineFilter
                   ? 'bg-green-500/20 text-green-400'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
@@ -235,7 +250,7 @@ const ChatApp: React.FC = () => {
                   setShowSearch(true);
                   setOnlineFilter(false);
                 }}
-                className="text-sm text-blue-500 hover:text-blue-400"
+                className="text-sm text-blue-500 hover:text-blue-400 cursor-pointer"
               >
                 Add friends to start chatting
               </button>
@@ -245,7 +260,7 @@ const ChatApp: React.FC = () => {
               <button
                 key={friend.identifier}
                 onClick={() => setSelectedChat(friend)}
-                className={`w-full p-4 flex items-center gap-3 hover:bg-gray-900 transition border-b border-gray-800/50 ${
+                className={`w-full p-4 flex items-center gap-3 hover:bg-gray-900 transition border-b border-gray-800/50 cursor-pointer ${
                   selectedChat?.identifier === friend.identifier ? 'bg-gray-900' : ''
                 }`}
               >
@@ -260,7 +275,11 @@ const ChatApp: React.FC = () => {
                 <div className="flex-1 text-left min-w-0">
                   <p className="font-medium text-white truncate">{friend.username}</p>
                   <p className="text-sm text-gray-500 truncate">
-                    {friend.isOnline ? 'Online' : 'Offline'}
+                    {friend.isOnline ? (
+                      <span className="text-green-500">● Online</span>
+                    ) : (
+                      'Offline'
+                    )}
                   </p>
                 </div>
               </button>
@@ -276,7 +295,7 @@ const ChatApp: React.FC = () => {
             {/* Chat Header */}
             <div className="h-16 bg-[#1a1a1a] border-b border-gray-800 px-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="relative">
+                <div className="relative cursor-pointer" onClick={() => setShowProfile(true)}>
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                     {selectedChat.username[0].toUpperCase()}
                   </div>
@@ -287,18 +306,22 @@ const ChatApp: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-white">{selectedChat.username}</h3>
                   <p className="text-xs text-gray-500">
-                    {selectedChat.isOnline ? 'Online' : 'Offline'}
+                    {selectedChat.isOnline ? (
+                      <span className="text-green-500">● Online</span>
+                    ) : (
+                      `Last seen ${formatDistanceToNow(new Date(), { addSuffix: true })}`
+                    )}
                   </p>
                 </div>
               </div>
 
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition">
+              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
                 <MoreVertical className="w-5 h-5" />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0a0a0a]">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -320,17 +343,17 @@ const ChatApp: React.FC = () => {
                     return (
                       <div
                         key={msg.id}
-                        className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${isOwn ? 'justify-end' : 'justify-start'} animate-fade-in`}
                       >
-                        <div className={`flex items-end gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+                        <div className={`flex items-end gap-2 max-w-[70%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
                           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                             {isOwn ? user?.username?.[0]?.toUpperCase() : selectedChat.username[0].toUpperCase()}
                           </div>
-                          <div className={`max-w-md ${isOwn ? 'items-end' : 'items-start'}`}>
+                          <div className="flex flex-col">
                             <div
                               className={`px-4 py-2.5 rounded-2xl ${
                                 isOwn
-                                  ? 'bg-gray-800 text-white rounded-br-sm'
+                                  ? 'bg-blue-600 text-white rounded-br-sm'
                                   : 'bg-[#1a1a1a] text-white rounded-bl-sm border border-gray-800'
                               }`}
                             >
@@ -338,9 +361,18 @@ const ChatApp: React.FC = () => {
                                 {msg.text}
                               </p>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1 px-1">
-                              {format(new Date(msg.timestamp), 'HH:mm')}
-                            </p>
+                            <div className={`flex items-center gap-1 mt-1 px-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                              <p className="text-xs text-gray-500">
+                                {format(new Date(msg.timestamp), 'HH:mm')}
+                              </p>
+                              {isOwn && (
+                                msg.isRead ? (
+                                  <CheckCheck className="w-3 h-3 text-blue-500" />
+                                ) : (
+                                  <Check className="w-3 h-3 text-gray-500" />
+                                )
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -353,10 +385,10 @@ const ChatApp: React.FC = () => {
 
             {/* Message Input */}
             <div className="h-20 bg-[#1a1a1a] border-t border-gray-800 px-6 flex items-center gap-3">
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition">
+              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
                 <Paperclip className="w-5 h-5" />
               </button>
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition">
+              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
                 <Smile className="w-5 h-5" />
               </button>
               <input
@@ -365,19 +397,24 @@ const ChatApp: React.FC = () => {
                 onChange={(e) => setMessageText(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type a message..."
-                className="flex-1 px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                disabled={sending}
+                className="flex-1 px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:opacity-50"
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!messageText.trim()}
-                className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                disabled={!messageText.trim() || sending}
+                className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
               >
-                <Send className="w-5 h-5" />
+                {sending ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
               </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
             <div className="text-center">
               <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="w-10 h-10 text-gray-600" />
@@ -399,7 +436,7 @@ const ChatApp: React.FC = () => {
           <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl">
             <div className="p-6 border-b border-gray-800 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-white">Add Friend</h3>
-              <button onClick={() => setShowSearch(false)} className="text-gray-400 hover:text-white">
+              <button onClick={() => setShowSearch(false)} className="text-gray-400 hover:text-white cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -421,7 +458,7 @@ const ChatApp: React.FC = () => {
               {searchResults.length > 0 && (
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {searchResults.map((searchUser) => (
-                    <div key={searchUser.email} className="flex items-center justify-between p-3 hover:bg-[#0a0a0a] rounded-xl">
+                    <div key={searchUser.email} className="flex items-center justify-between p-3 hover:bg-[#0a0a0a] rounded-xl transition">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
                           {searchUser.username[0].toUpperCase()}
@@ -433,7 +470,7 @@ const ChatApp: React.FC = () => {
                       </div>
                       <button
                         onClick={() => handleAddFriend(searchUser.email)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium cursor-pointer"
                       >
                         Add
                       </button>
