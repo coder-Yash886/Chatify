@@ -1,9 +1,20 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
-import { users } from './authController';
 
-const friendships = new Map<string, Set<string>>();
+interface Friendship {
+  user1: string;
+  user2: string;
+  createdAt: string;
+}
+
+// In-memory storage
+const friendships = new Map<string, Friendship>();
 const onlineUsers = new Set<string>();
+
+// Helper to create friendship ID
+const getFriendshipId = (user1: string, user2: string): string => {
+  return [user1, user2].sort().join('_');
+};
 
 export const getFriends = (req: AuthRequest, res: Response): void => {
   if (!req.user) {
@@ -11,21 +22,26 @@ export const getFriends = (req: AuthRequest, res: Response): void => {
     return;
   }
 
-  const userFriends = friendships.get(req.user.identifier) || new Set();
-  const friendsList = Array.from(userFriends).map((friendId) => {
-    const user = users.get(friendId);
-    return {
-      username: user?.username || friendId,
-      identifier: friendId,
-      isOnline: onlineUsers.has(friendId),
-      lastSeen: new Date(),
-    };
+  const userFriends: any[] = [];
+  
+  friendships.forEach((friendship) => {
+    if (friendship.user1 === req.user!.identifier || friendship.user2 === req.user!.identifier) {
+      const friendId = friendship.user1 === req.user!.identifier 
+        ? friendship.user2 
+        : friendship.user1;
+      
+      userFriends.push({
+        username: friendId.split('@')[0],
+        identifier: friendId,
+        isOnline: onlineUsers.has(friendId),
+      });
+    }
   });
 
   res.json({
     success: true,
-    friends: friendsList,
-    onlineCount: friendsList.filter(f => f.isOnline).length,
+    friends: userFriends,
+    onlineCount: userFriends.filter(f => f.isOnline).length,
   });
 };
 
@@ -47,33 +63,38 @@ export const addFriend = (req: AuthRequest, res: Response): void => {
     return;
   }
 
-  if (!users.has(friendEmail)) {
-    res.status(404).json({ success: false, error: 'User not found' });
+  const friendshipId = getFriendshipId(req.user.identifier, friendEmail);
+
+  if (friendships.has(friendshipId)) {
+    res.status(400).json({ success: false, error: 'Already friends' });
     return;
   }
 
-  if (!friendships.has(req.user.identifier)) {
-    friendships.set(req.user.identifier, new Set());
-  }
-  if (!friendships.has(friendEmail)) {
-    friendships.set(friendEmail, new Set());
-  }
+  const friendship: Friendship = {
+    user1: req.user.identifier,
+    user2: friendEmail,
+    createdAt: new Date().toISOString(),
+  };
 
-  friendships.get(req.user.identifier)!.add(friendEmail);
-  friendships.get(friendEmail)!.add(req.user.identifier);
+  friendships.set(friendshipId, friendship);
+
+  console.log(`✅ Friendship created: ${req.user.identifier} ↔ ${friendEmail}`);
 
   res.json({
     success: true,
     message: 'Friend added successfully',
+    friendship,
   });
 };
 
-export const setUserOnline = (identifier: string): void => {
-  onlineUsers.add(identifier);
+export const setUserOnline = (userId: string): void => {
+  onlineUsers.add(userId);
+  console.log(`🟢 User online: ${userId}`);
 };
 
-export const setUserOffline = (identifier: string): void => {
-  onlineUsers.delete(identifier);
+export const setUserOffline = (userId: string): void => {
+  onlineUsers.delete(userId);
+  console.log(`🔴 User offline: ${userId}`);
 };
 
 export const getOnlineUsers = (): string[] => {

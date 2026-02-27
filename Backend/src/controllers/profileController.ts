@@ -1,9 +1,18 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
-import { UserProfile } from '../types';
 import { users } from './authController';
 
-// In-memory storage
+interface UserProfile {
+  username: string;
+  email: string;
+  avatar?: string;
+  bio?: string;
+  status: 'online' | 'offline' | 'away' | 'busy';
+  statusMessage?: string;
+  createdAt: string;
+  lastSeen: string;
+}
+
 const profiles = new Map<string, UserProfile>();
 
 export const getProfile = (req: AuthRequest, res: Response): void => {
@@ -12,15 +21,24 @@ export const getProfile = (req: AuthRequest, res: Response): void => {
     return;
   }
 
-//   const { userId } = req.params;
-//   const profile = profiles.get(userId || req.user.identifier);
-      
   const userId = (req.params.userId as string) || req.user.identifier;
-  const profile = profiles.get(userId);
+  let profile = profiles.get(userId);
 
   if (!profile) {
-    res.status(404).json({ success: false, error: 'Profile not found' });
-    return;
+    const user = users.get(userId);
+    if (!user) {
+      res.status(404).json({ success: false, error: 'User not found' });
+      return;
+    }
+
+    profile = {
+      username: user.username,
+      email: user.email,
+      status: 'offline',
+      createdAt: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+    };
+    profiles.set(userId, profile);
   }
 
   res.json({
@@ -35,25 +53,28 @@ export const updateProfile = (req: AuthRequest, res: Response): void => {
     return;
   }
 
-  const { avatar, bio, status, statusMessage } = req.body;
-
+  const { avatar, bio, statusMessage } = req.body;
   let profile = profiles.get(req.user.identifier);
-  
+
   if (!profile) {
     const user = users.get(req.user.identifier);
+    if (!user) {
+      res.status(404).json({ success: false, error: 'User not found' });
+      return;
+    }
+
     profile = {
-      username: req.user.username,
-      email: req.user.identifier,
+      username: user.username,
+      email: user.email,
       status: 'online',
-      createdAt: new Date(),
-      lastSeen: new Date(),
+      createdAt: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
     };
   }
 
-  if (avatar !== undefined) profile.avatar = avatar;
-  if (bio !== undefined) profile.bio = bio;
-  if (status !== undefined) profile.status = status;
-  if (statusMessage !== undefined) profile.statusMessage = statusMessage;
+  if (avatar) profile.avatar = avatar;
+  if (bio) profile.bio = bio;
+  if (statusMessage) profile.statusMessage = statusMessage;
 
   profiles.set(req.user.identifier, profile);
 
@@ -77,14 +98,31 @@ export const updateStatus = (req: AuthRequest, res: Response): void => {
   }
 
   let profile = profiles.get(req.user.identifier);
-  
-  if (profile) {
-    profile.status = status;
-    profile.lastSeen = new Date();
-    profiles.set(req.user.identifier, profile);
+
+  if (!profile) {
+    const user = users.get(req.user.identifier);
+    if (!user) {
+      res.status(404).json({ success: false, error: 'User not found' });
+      return;
+    }
+
+    profile = {
+      username: user.username,
+      email: user.email,
+      status: 'online',
+      createdAt: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+    };
   }
 
-  res.json({ success: true, status });
+  profile.status = status;
+  profile.lastSeen = new Date().toISOString();
+  profiles.set(req.user.identifier, profile);
+
+  res.json({
+    success: true,
+    status,
+  });
 };
 
 export const searchUsers = (req: AuthRequest, res: Response): void => {
@@ -93,25 +131,39 @@ export const searchUsers = (req: AuthRequest, res: Response): void => {
     return;
   }
 
-  const { query } = req.query;
+  const query = (req.query.query as string)?.toLowerCase();
 
-  if (!query || typeof query !== 'string') {
+  if (!query) {
     res.status(400).json({ success: false, error: 'Search query required' });
     return;
   }
 
-  const searchQuery = query.toLowerCase();
   const results: UserProfile[] = [];
 
-  profiles.forEach((profile, userId) => {
+  users.forEach((user) => {
+    if (user.email === req.user!.identifier) return;
+
     if (
-      userId !== req.user!.identifier &&
-      (profile.username.toLowerCase().includes(searchQuery) ||
-       profile.email.toLowerCase().includes(searchQuery))
+      user.username.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query)
     ) {
+      let profile = profiles.get(user.email);
+
+      if (!profile) {
+        profile = {
+          username: user.username,
+          email: user.email,
+          status: 'offline',
+          createdAt: new Date().toISOString(),
+          lastSeen: new Date().toISOString(),
+        };
+      }
+
       results.push(profile);
     }
   });
+
+  console.log(`🔍 Search for "${query}" found ${results.length} users`);
 
   res.json({
     success: true,
