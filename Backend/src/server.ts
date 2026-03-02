@@ -23,7 +23,7 @@ import {
 import { getRooms, createRoom } from './controllers/roomController';
 
 // Friends
-import { getFriends } from './controllers/friendsControllers';
+import { getFriends, addFriend } from './controllers/friendsControllers';
 
 // Notifications
 import { getNotifications, markAsRead } from './controllers/notificationsController';
@@ -44,7 +44,7 @@ import {
   searchUsers 
 } from './controllers/profileController';
 
-// Messages (Advanced)
+// Messages
 import {
   getMessages,
   sendMessage,
@@ -109,7 +109,7 @@ app.post('/api/rooms', authenticateToken, createRoom);
 
 app.get('/api/friends', authenticateToken, getFriends);
 app.post('/api/friends/add', authenticateToken, addFriend);
-`
+
 /* ================== NOTIFICATION ROUTES ================== */
 
 app.get('/api/notifications', authenticateToken, getNotifications);
@@ -124,7 +124,8 @@ app.post('/api/dm/read', authenticateToken, markDMAsRead);
 
 /* ================== PROFILE ROUTES ================== */
 
-app.get('/api/profile/:userId?', authenticateToken, getProfile);
+app.get('/api/profile', authenticateToken, getProfile);
+app.get('/api/profile/:userId', authenticateToken, getProfile);
 app.put('/api/profile', authenticateToken, updateProfile);
 app.patch('/api/profile/status', authenticateToken, updateStatus);
 app.get('/api/users/search', authenticateToken, searchUsers);
