@@ -98,8 +98,8 @@ export const getFriends = async (): Promise<{ success: boolean; friends: Friend[
   return response.data;
 };
 
-export const addFriend = async (friendEmail: string): Promise<AuthResponse> => {
-  const response = await api.post('/api/friends/add', { friendEmail });
+export const addFriend = async (email: string): Promise<AuthResponse> => {
+  const response = await api.post('/api/friends/add', { email });
   return response.data;
 };
 
