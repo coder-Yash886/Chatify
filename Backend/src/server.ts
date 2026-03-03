@@ -1,5 +1,6 @@
 import express, { Express } from 'express';
 import http from 'http';
+import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
@@ -29,19 +30,19 @@ import { getFriends, addFriend } from './controllers/friendsControllers';
 import { getNotifications, markAsRead } from './controllers/notificationsController';
 
 // Direct Messages
-import { 
-  getConversations, 
-  getDirectMessages, 
-  sendDirectMessage, 
-  markDMAsRead 
+import {
+  getConversations,
+  getDirectMessages,
+  sendDirectMessage,
+  markDMAsRead,
 } from './controllers/dmController';
 
 // Profile
-import { 
-  getProfile, 
-  updateProfile, 
-  updateStatus, 
-  searchUsers 
+import {
+  getProfile,
+  updateProfile,
+  updateStatus,
+  searchUsers,
 } from './controllers/profileController';
 
 // Messages
@@ -130,7 +131,7 @@ app.put('/api/profile', authenticateToken, updateProfile);
 app.patch('/api/profile/status', authenticateToken, updateStatus);
 app.get('/api/users/search', authenticateToken, searchUsers);
 
-/* ================== MESSAGE/CONVERSATION ROUTES ================== */
+/* ================== MESSAGE ROUTES ================== */
 
 app.get('/api/conversations/:conversationId/messages', authenticateToken, getMessages);
 app.post('/api/conversations', authenticateToken, createConversation);
@@ -155,17 +156,33 @@ app.get('/api/users', authenticateToken, getAllUsers);
 
 setupWebSocketServer(server);
 
-/* ================== SERVER START ================== */
+/* ================== SERVER START WITH DB CONNECTION ================== */
 
-server.listen(config.PORT, () => {
-  console.log('');
-  console.log('🚀 ========================================');
-  console.log(`📡 Server running on http://localhost:${config.PORT}`);
-  console.log(`🔌 WebSocket running on ws://localhost:${config.PORT}`);
-  console.log(`📝 Environment: ${config.NODE_ENV}`);
-  console.log('🚀 ========================================');
-  console.log('');
-});
+const startServer = async () => {
+  try {
+    console.log('⏳ Connecting to MongoDB...');
+
+    await mongoose.connect(config.MONGO_URI);
+
+    console.log('✅ MongoDB Connected Successfully');
+
+    server.listen(config.PORT, () => {
+      console.log('');
+      console.log('🚀 ========================================');
+      console.log(`📡 Server running on http://localhost:${config.PORT}`);
+      console.log(`🔌 WebSocket running on ws://localhost:${config.PORT}`);
+      console.log(`📝 Environment: ${config.NODE_ENV}`);
+      console.log('🚀 ========================================');
+      console.log('');
+    });
+
+  } catch (error) {
+    console.error('❌ MongoDB Connection Failed:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 /* ================== GRACEFUL SHUTDOWN ================== */
 
