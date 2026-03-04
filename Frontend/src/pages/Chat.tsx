@@ -256,7 +256,7 @@ import {
 } from '../api/api';
 import { format, formatDistanceToNow } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
-import SettingsModal from '../components/SettingsModal';
+import SettingsModal from '../components/SettingsModel';
 import AddFriendModal from '../components/AddFriendModal';
 
 const ChatApp: React.FC = () => {

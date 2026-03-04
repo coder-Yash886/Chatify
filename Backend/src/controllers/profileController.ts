@@ -15,6 +15,7 @@ interface UserProfile {
 
 const profiles = new Map<string, UserProfile>();
 
+// ================= GET PROFILE =================
 export const getProfile = (req: AuthRequest, res: Response): void => {
   if (!req.user) {
     res.status(401).json({ success: false, error: 'Not authenticated' });
@@ -25,7 +26,7 @@ export const getProfile = (req: AuthRequest, res: Response): void => {
   let profile = profiles.get(userId);
 
   if (!profile) {
-    const user = users.get(userId);
+    const user = users?.get(userId);
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
@@ -38,6 +39,7 @@ export const getProfile = (req: AuthRequest, res: Response): void => {
       createdAt: new Date().toISOString(),
       lastSeen: new Date().toISOString(),
     };
+
     profiles.set(userId, profile);
   }
 
@@ -47,6 +49,7 @@ export const getProfile = (req: AuthRequest, res: Response): void => {
   });
 };
 
+// ================= UPDATE PROFILE =================
 export const updateProfile = (req: AuthRequest, res: Response): void => {
   if (!req.user) {
     res.status(401).json({ success: false, error: 'Not authenticated' });
@@ -57,7 +60,7 @@ export const updateProfile = (req: AuthRequest, res: Response): void => {
   let profile = profiles.get(req.user.identifier);
 
   if (!profile) {
-    const user = users.get(req.user.identifier);
+    const user = users?.get(req.user.identifier);
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
@@ -72,9 +75,9 @@ export const updateProfile = (req: AuthRequest, res: Response): void => {
     };
   }
 
-  if (avatar) profile.avatar = avatar;
-  if (bio) profile.bio = bio;
-  if (statusMessage) profile.statusMessage = statusMessage;
+  if (avatar !== undefined) profile.avatar = avatar;
+  if (bio !== undefined) profile.bio = bio;
+  if (statusMessage !== undefined) profile.statusMessage = statusMessage;
 
   profiles.set(req.user.identifier, profile);
 
@@ -84,6 +87,7 @@ export const updateProfile = (req: AuthRequest, res: Response): void => {
   });
 };
 
+// ================= UPDATE STATUS =================
 export const updateStatus = (req: AuthRequest, res: Response): void => {
   if (!req.user) {
     res.status(401).json({ success: false, error: 'Not authenticated' });
@@ -100,7 +104,7 @@ export const updateStatus = (req: AuthRequest, res: Response): void => {
   let profile = profiles.get(req.user.identifier);
 
   if (!profile) {
-    const user = users.get(req.user.identifier);
+    const user = users?.get(req.user.identifier);
     if (!user) {
       res.status(404).json({ success: false, error: 'User not found' });
       return;
@@ -117,6 +121,7 @@ export const updateStatus = (req: AuthRequest, res: Response): void => {
 
   profile.status = status;
   profile.lastSeen = new Date().toISOString();
+
   profiles.set(req.user.identifier, profile);
 
   res.json({
@@ -125,6 +130,7 @@ export const updateStatus = (req: AuthRequest, res: Response): void => {
   });
 };
 
+// ================= SEARCH USERS =================
 export const searchUsers = (req: AuthRequest, res: Response): void => {
   if (!req.user) {
     res.status(401).json({ success: false, error: 'Not authenticated' });
@@ -134,18 +140,27 @@ export const searchUsers = (req: AuthRequest, res: Response): void => {
   const query = (req.query.query as string)?.toLowerCase();
 
   if (!query) {
-    res.status(400).json({ success: false, error: 'Search query required' });
+    res.json({ success: true, users: [] });
+    return;
+  }
+
+  if (!users || typeof users.forEach !== 'function') {
+    console.error("❌ USERS MAP NOT INITIALIZED");
+    res.json({ success: true, users: [] });
     return;
   }
 
   const results: UserProfile[] = [];
 
-  users.forEach((user) => {
+  users.forEach((user, key) => {
+    if (!user) return;
+
+    // Skip self
     if (user.email === req.user!.identifier) return;
 
     if (
-      user.username.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query)
+      user.username?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query)
     ) {
       let profile = profiles.get(user.email);
 
@@ -163,7 +178,7 @@ export const searchUsers = (req: AuthRequest, res: Response): void => {
     }
   });
 
-  console.log(`🔍 Search for "${query}" found ${results.length} users`);
+  console.log(`🔍 Search "${query}" → ${results.length} users found`);
 
   res.json({
     success: true,
