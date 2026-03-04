@@ -29,7 +29,7 @@ const AddFriend: React.FC<AddFriendProps> = ({
         { email }
       );
 
-      setMessage("✅ Friend request sent successfully!");
+      setMessage("✅ Friend request !");
       setEmail("");
 
       onFriendAdded?.();
