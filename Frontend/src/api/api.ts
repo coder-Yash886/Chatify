@@ -99,7 +99,7 @@ export const getFriends = async (): Promise<{ success: boolean; friends: Friend[
 };
 
 export const addFriend = async (email: string): Promise<AuthResponse> => {
-  const response = await api.post('/api/friends/add', { email });
+  const response = await api.post('/api/friends/add', { friendEmail: email });
   return response.data;
 };
 
