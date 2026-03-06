@@ -22,10 +22,11 @@ export const getFriends = async (req: AuthRequest, res: Response): Promise<void>
       user.friends.map(async (friendEmail) => {
         const friend = await UserModel.findOne({ email: friendEmail });
         if (friend) {
+          const isOnline = onlineUsers.has(friend.email);
           return {
             username: friend.username,
             identifier: friend.email,
-            isOnline: onlineUsers.has(friend.email),
+            isOnline: isOnline, // Use real-time online status
           };
         }
         return null;
@@ -34,7 +35,7 @@ export const getFriends = async (req: AuthRequest, res: Response): Promise<void>
 
     const validFriends = friendsList.filter(f => f !== null);
 
-    console.log(`👥 ${req.user.username} has ${validFriends.length} friends`);
+    console.log(`👥 ${req.user.username} has ${validFriends.length} friends (${validFriends.filter(f => f?.isOnline).length} online)`);
 
     res.json({
       success: true,
@@ -68,7 +69,6 @@ export const addFriend = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
-    // Check if friend exists in MongoDB
     const friendUser = await UserModel.findOne({ email: friendEmail });
 
     if (!friendUser) {
@@ -77,7 +77,6 @@ export const addFriend = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
-    // Get current user from MongoDB
     const currentUser = await UserModel.findOne({ email: req.user.identifier });
 
     if (!currentUser) {
@@ -85,18 +84,15 @@ export const addFriend = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
-    // Check if already friends
     if (currentUser.friends.includes(friendEmail)) {
       console.log(`⚠️ Already friends: ${req.user.identifier} ↔ ${friendEmail}`);
       res.status(400).json({ success: false, error: 'Already friends' });
       return;
     }
 
-    // Add friend to both users
     currentUser.friends.push(friendEmail);
     await currentUser.save();
 
-    // Add current user to friend's list
     if (!friendUser.friends.includes(req.user.identifier)) {
       friendUser.friends.push(req.user.identifier);
       await friendUser.save();
@@ -116,14 +112,18 @@ export const addFriend = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const setUserOnline = (userId: string): void => {
   onlineUsers.add(userId);
-  console.log(`🟢 User online: ${userId}`);
+  console.log(`🟢 User online: ${userId} (Total online: ${onlineUsers.size})`);
 };
 
 export const setUserOffline = (userId: string): void => {
   onlineUsers.delete(userId);
-  console.log(`🔴 User offline: ${userId}`);
+  console.log(`🔴 User offline: ${userId} (Total online: ${onlineUsers.size})`);
 };
 
 export const getOnlineUsers = (): string[] => {
   return Array.from(onlineUsers);
+};
+
+export const isUserOnline = (userId: string): boolean => {
+  return onlineUsers.has(userId);
 };
