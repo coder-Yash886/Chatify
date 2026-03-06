@@ -1,166 +1,141 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { WebSocketService } from '../utils/websocket';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAuth } from './AuthContext';
 
-interface Message {
-  username: string;
-  text: string;
-  timestamp: string;
-}
-
 interface WebSocketContextType {
-  ws: WebSocketService | null;
   isConnected: boolean;
-  currentRoom: string | null;
-  messages: Message[];
-  typingUsers: string[];
-  roomUsers: string[];
-  joinRoom: (roomId: string) => void;
-  leaveRoom: () => void;
-  sendMessage: (text: string) => void;
-  sendTyping: () => void;
-  sendStopTyping: () => void;
+  sendDirectMessage: (to: string, text: string, messageId: string) => void;
+  onNewDirectMessage: (callback: (data: any) => void) => void;
+  onStatusChange: (callback: (data: any) => void) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
-
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  const [ws, setWs] = useState<WebSocketService | null>(null);
+  const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
-  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const [roomUsers, setRoomUsers] = useState<string[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
+  const newMessageCallbacks = useRef<((data: any) => void)[]>([]);
+  const statusChangeCallbacks = useRef<((data: any) => void)[]>([]);
 
   useEffect(() => {
-    if (isAuthenticated && !ws) {
-      const websocket = new WebSocketService(WS_URL);
-      
-      websocket.connect().then(() => {
-        setIsConnected(true);
-        
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          ?.split('=')[1];
-        
-        if (token) {
-          websocket.send('auth', { token });
-        }
-      }).catch((error) => {
-        console.error('WebSocket connection failed:', error);
-      });
-
-      websocket.on('auth-success', (payload) => {
-        console.log('✅ WebSocket authenticated:', payload.username);
-      });
-
-      websocket.on('auth-error', (payload) => {
-        console.error('❌ WebSocket auth error:', payload.error);
-      });
-
-      websocket.on('room-history', (payload) => {
-        setMessages(payload);
-      });
-
-      websocket.on('room-users', (payload) => {
-        setRoomUsers(payload);
-      });
-
-      websocket.on('new-message', (payload) => {
-        setMessages((prev) => [...prev, payload]);
-      });
-
-      websocket.on('user-joined', (payload) => {
-        console.log(`👋 ${payload.username} joined`);
-      });
-
-      websocket.on('user-left', (payload) => {
-        console.log(`👋 ${payload.username} left`);
-      });
-
-      websocket.on('user-typing', (payload) => {
-        setTypingUsers((prev) => {
-          if (!prev.includes(payload.username)) {
-            return [...prev, payload.username];
-          }
-          return prev;
-        });
-      });
-
-      websocket.on('user-stop-typing', (payload) => {
-        setTypingUsers((prev) => prev.filter((u) => u !== payload.username));
-      });
-
-      websocket.on('error', (payload) => {
-        console.error('❌ WebSocket error:', payload.error);
-      });
-
-      setWs(websocket);
+    if (!user) {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+      setIsConnected(false);
+      return;
     }
 
-    return () => {
-      if (ws && !isAuthenticated) {
-        ws.disconnect();
-        setWs(null);
-        setIsConnected(false);
+    // Get token from cookie
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('token='))
+      ?.split('=')[1];
+
+    if (!token) {
+      console.log('❌ No token available for WebSocket');
+      return;
+    }
+
+    const ws = new WebSocket('ws://localhost:3000');
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('🔌 WebSocket connected');
+      // Authenticate
+      ws.send(JSON.stringify({ type: 'auth', token }));
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('📨 WS received:', data.type);
+
+        switch (data.type) {
+          case 'auth-success':
+            setIsConnected(true);
+            console.log('✅ WebSocket authenticated:', data.payload.username);
+            break;
+
+          case 'auth-error':
+            console.error('❌ WebSocket auth failed:', data.payload.error);
+            setIsConnected(false);
+            break;
+
+          case 'new-dm':
+            console.log('💬 New DM from:', data.payload.fromUsername);
+            newMessageCallbacks.current.forEach(cb => cb(data.payload));
+            break;
+
+          case 'status-change':
+            console.log(`👤 ${data.userId} is ${data.isOnline ? 'online' : 'offline'}`);
+            statusChangeCallbacks.current.forEach(cb => cb(data));
+            break;
+
+          case 'dm-delivered':
+            console.log('✅ Message delivered:', data.payload);
+            break;
+
+          case 'dm-typing':
+            // Handle typing indicator
+            break;
+
+          default:
+            console.log('Unknown WS message:', data.type);
+        }
+      } catch (error) {
+        console.error('WebSocket message parse error:', error);
       }
     };
-  }, [isAuthenticated]);
 
-  const joinRoom = (roomId: string) => {
-    if (ws) {
-      ws.send('join-room', { roomId });
-      setCurrentRoom(roomId);
-      setMessages([]);
-      setTypingUsers([]);
+    ws.onerror = (error) => {
+      console.error('❌ WebSocket error:', error);
+      setIsConnected(false);
+    };
+
+    ws.onclose = () => {
+      console.log('🔌 WebSocket disconnected');
+      setIsConnected(false);
+    };
+
+    return () => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, [user]);
+
+  const sendDirectMessage = (to: string, text: string, messageId: string) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(
+        JSON.stringify({
+          type: 'dm',
+          to,
+          text,
+          messageId,
+          timestamp: new Date().toISOString(),
+        })
+      );
+      console.log('📤 Sent DM via WebSocket');
     }
   };
 
-  const leaveRoom = () => {
-    if (ws) {
-      ws.send('leave-room');
-      setCurrentRoom(null);
-      setMessages([]);
-      setTypingUsers([]);
-    }
+  const onNewDirectMessage = (callback: (data: any) => void) => {
+    newMessageCallbacks.current.push(callback);
   };
 
-  const sendMessage = (text: string) => {
-    if (ws && currentRoom) {
-      ws.send('send-message', { text });
-    }
-  };
-
-  const sendTyping = () => {
-    if (ws && currentRoom) {
-      ws.send('typing');
-    }
-  };
-
-  const sendStopTyping = () => {
-    if (ws && currentRoom) {
-      ws.send('stop-typing');
-    }
+  const onStatusChange = (callback: (data: any) => void) => {
+    statusChangeCallbacks.current.push(callback);
   };
 
   return (
-    <WebSocketContext.Provider
-      value={{
-        ws,
-        isConnected,
-        currentRoom,
-        messages,
-        typingUsers,
-        roomUsers,
-        joinRoom,
-        leaveRoom,
-        sendMessage,
-        sendTyping,
-        sendStopTyping,
+    <WebSocketContext.Provider 
+      value={{ 
+        isConnected, 
+        sendDirectMessage, 
+        onNewDirectMessage, 
+        onStatusChange 
       }}
     >
       {children}

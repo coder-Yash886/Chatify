@@ -41,6 +41,7 @@ export const setupWebSocketServer = (server: Server): WebSocketServer => {
     });
   });
 
+  // Heartbeat to detect broken connections
   const interval = setInterval(() => {
     wss.clients.forEach((ws) => {
       const authWs = ws as AuthenticatedWebSocket;
@@ -63,7 +64,7 @@ export const setupWebSocketServer = (server: Server): WebSocketServer => {
 const handleWebSocketMessage = (ws: AuthenticatedWebSocket, message: any, wss: WebSocketServer): void => {
   switch (message.type) {
     case 'auth':
-      handleAuth(ws, message.payload, wss);
+      handleAuth(ws, message, wss);
       break;
     case 'join-room':
       handleJoinRoom(ws, message.payload, wss);
@@ -80,14 +81,22 @@ const handleWebSocketMessage = (ws: AuthenticatedWebSocket, message: any, wss: W
     case 'stop-typing':
       handleStopTyping(ws, wss);
       break;
+    // NEW: Direct messaging
+    case 'dm':
+      handleDirectMessage(ws, message, wss);
+      break;
+    case 'dm-typing':
+      handleDMTyping(ws, message, wss);
+      break;
     default:
+      console.log('⚠️ Unknown message type:', message.type);
       sendError(ws, 'Unknown message type');
   }
 };
 
-const handleAuth = (ws: AuthenticatedWebSocket, payload: { token: string }, wss: WebSocketServer): void => {
+const handleAuth = (ws: AuthenticatedWebSocket, message: any, wss: WebSocketServer): void => {
   try {
-    const { token } = payload;
+    const { token } = message;
     if (!token) {
       sendMessage(ws, 'auth-error', { error: 'Token required' });
       return;
@@ -108,8 +117,16 @@ const handleAuth = (ws: AuthenticatedWebSocket, payload: { token: string }, wss:
     // Set user online
     setUserOnline(ws.identifier);
 
-    sendMessage(ws, 'auth-success', { username: ws.username, message: 'Authenticated successfully' });
-    console.log(`✅ User authenticated: ${ws.username}`);
+    sendMessage(ws, 'auth-success', { 
+      username: ws.username, 
+      identifier: ws.identifier,
+      message: 'Authenticated successfully' 
+    });
+
+    // Broadcast online status to all connected users
+    broadcastStatusChange(ws.identifier, true, wss);
+
+    console.log(`✅ User authenticated: ${ws.username} (${ws.identifier})`);
   } catch (error) {
     console.error('❌ Auth error:', error);
     sendMessage(ws, 'auth-error', { error: 'Invalid token' });
@@ -212,6 +229,82 @@ const handleSendMessage = (ws: AuthenticatedWebSocket, payload: { text: string }
   console.log(`💬 ${ws.username} in ${ws.currentRoom}: ${text}`);
 };
 
+// NEW: Handle Direct Messages
+const handleDirectMessage = (ws: AuthenticatedWebSocket, message: any, wss: WebSocketServer): void => {
+  if (!ws.identifier) {
+    sendError(ws, 'Not authenticated');
+    return;
+  }
+
+  const { to, text, messageId, timestamp } = message;
+
+  if (!to || !text) {
+    sendError(ws, 'Recipient and message required');
+    return;
+  }
+
+  console.log(`📨 DM: ${ws.identifier} → ${to}: "${text}"`);
+
+  // Find recipient
+  const recipient = activeUsers.get(to);
+
+  if (recipient && recipient.ws.readyState === WebSocket.OPEN) {
+    // Recipient is online - send immediately
+    sendMessage(recipient.ws, 'new-dm', {
+      from: ws.identifier,
+      fromUsername: ws.username,
+      to,
+      text,
+      messageId,
+      timestamp: timestamp || new Date().toISOString(),
+    });
+
+    console.log(`✅ DM delivered to ${to}`);
+
+    // Send delivery confirmation to sender
+    sendMessage(ws, 'dm-delivered', {
+      messageId,
+      to,
+      delivered: true,
+    });
+  } else {
+    // Recipient is offline
+    console.log(`⚠️ Recipient ${to} is offline`);
+
+    // Create notification
+    createNotification(
+      to,
+      'message',
+      ws.identifier,
+      `New message from ${ws.username}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`
+    );
+
+    // Send delivery status to sender
+    sendMessage(ws, 'dm-delivered', {
+      messageId,
+      to,
+      delivered: false,
+      offline: true,
+    });
+  }
+};
+
+// NEW: Handle DM Typing Indicator
+const handleDMTyping = (ws: AuthenticatedWebSocket, message: any, wss: WebSocketServer): void => {
+  if (!ws.identifier) return;
+
+  const { to, isTyping } = message;
+
+  const recipient = activeUsers.get(to);
+  if (recipient && recipient.ws.readyState === WebSocket.OPEN) {
+    sendMessage(recipient.ws, 'dm-typing', {
+      from: ws.identifier,
+      fromUsername: ws.username,
+      isTyping,
+    });
+  }
+};
+
 const handleTyping = (ws: AuthenticatedWebSocket, wss: WebSocketServer): void => {
   if (!ws.username || !ws.currentRoom) return;
   broadcastToRoom(ws.currentRoom, 'user-typing', { username: ws.username }, wss, ws);
@@ -234,9 +327,33 @@ const handleDisconnect = (ws: AuthenticatedWebSocket, wss: WebSocketServer): voi
   }
 
   // Set user offline
-  setUserOffline(ws.identifier);
-  
-  activeUsers.delete(ws.identifier);
+  if (ws.identifier) {
+    setUserOffline(ws.identifier);
+    
+    // Broadcast offline status to all connected users
+    broadcastStatusChange(ws.identifier, false, wss);
+    
+    activeUsers.delete(ws.identifier);
+  }
+};
+
+// NEW: Broadcast status changes
+const broadcastStatusChange = (userId: string, isOnline: boolean, wss: WebSocketServer): void => {
+  const statusMessage = {
+    type: 'status-change',
+    userId,
+    isOnline,
+    timestamp: new Date().toISOString(),
+  };
+
+  wss.clients.forEach((client) => {
+    const authClient = client as AuthenticatedWebSocket;
+    if (authClient.readyState === WebSocket.OPEN && authClient.identifier !== userId) {
+      authClient.send(JSON.stringify(statusMessage));
+    }
+  });
+
+  console.log(`📢 Broadcasted: ${userId} is ${isOnline ? 'online' : 'offline'}`);
 };
 
 const sendMessage = (ws: AuthenticatedWebSocket, type: string, payload?: any): void => {
@@ -264,3 +381,6 @@ const broadcastToRoom = (
     }
   });
 };
+
+// Export activeUsers for debugging
+export { activeUsers };
