@@ -10,51 +10,64 @@ import {
   Paperclip,
   MoreVertical,
   Users,
-  X,
   Plus,
   MessageCircle,
   Check,
-  CheckCheck
+  CheckCheck,
+  RefreshCw,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useWebSocket } from '../context/WebSocketContext';
 import { 
   getFriends, 
   getDirectMessages,
-  sendDirectMessage,
-  searchUsers,
-  addFriend,
+  sendDirectMessage as sendDMAPI,
+  markDMAsRead,
   type Friend, 
-  type DirectMessage,
-  type UserProfile 
+  type DirectMessage
 } from '../api/api';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
-import SettingsModal from '../components/SettingsModel';
+import SettingsModal from '../components/SettingsModal';
+import AddFriendModal from '../components/AddFriendModal';
 
 const ChatApp: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { isConnected, sendDirectMessage, onNewDirectMessage, onStatusChange, reconnect } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const notificationSound = useRef<HTMLAudioElement | null>(null);
 
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedChat, setSelectedChat] = useState<Friend | null>(null);
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [messageText, setMessageText] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showAddFriend, setShowAddFriend] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [onlineFilter, setOnlineFilter] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // Create notification sound
+    notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZRA0PVanl8LJiHAU7k9n0yXgsBS17yPLaizsIGGS56+mgTQwNUKXi8bllHAU5j9f0zHgrBS16xu/ejz0KEFF+n+Dxu2oeAt/9');
+  }, []);
+
+  // Load friends every 5 seconds
   useEffect(() => {
     loadFriends();
-    const interval = setInterval(loadFriends, 10000);
+    const interval = setInterval(loadFriends, 5000);
     return () => clearInterval(interval);
   }, []);
 
+  // Load messages when chat is selected
   useEffect(() => {
     if (selectedChat) {
       loadMessages(selectedChat.identifier);
@@ -62,6 +75,62 @@ const ChatApp: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [selectedChat]);
+
+  // WebSocket: Listen for new messages
+  useEffect(() => {
+    const handleNewMessage = (data: any) => {
+      console.log('📩 Received new DM:', data);
+      
+      // Play notification sound if not from current chat
+      if (!selectedChat || data.from !== selectedChat.identifier) {
+        notificationSound.current?.play().catch(err => console.log('Sound error:', err));
+        
+        // Show browser notification
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(`💬 ${data.fromUsername}`, {
+            body: data.text,
+            icon: '/favicon.ico',
+          });
+        }
+      }
+      
+      // If message is from current chat, add it and mark as read
+      if (selectedChat && data.from === selectedChat.identifier) {
+        setMessages(prev => [...prev, {
+          id: data.messageId || Date.now().toString(),
+          from: data.from,
+          to: data.to,
+          text: data.text,
+          timestamp: data.timestamp,
+          isRead: false,
+          type: 'text',
+        }]);
+        scrollToBottom();
+        
+        // Mark as read
+        markDMAsRead(data.from).catch(err => console.error('Failed to mark as read:', err));
+      }
+      
+      // Reload friends to update
+      loadFriends();
+    };
+
+    onNewDirectMessage(handleNewMessage);
+  }, [selectedChat]);
+
+  // WebSocket: Listen for status changes
+  useEffect(() => {
+    const handleStatusChange = (data: any) => {
+      console.log(`👥 Status update: ${data.userId} is ${data.isOnline ? 'online' : 'offline'}`);
+      setFriends(prev => prev.map(f => 
+        f.identifier === data.userId 
+          ? { ...f, isOnline: data.isOnline }
+          : f
+      ));
+    };
+
+    onStatusChange(handleStatusChange);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -80,6 +149,13 @@ const ChatApp: React.FC = () => {
     try {
       const response = await getDirectMessages(userId);
       setMessages(response.messages);
+      
+      // Auto mark messages as read
+      try {
+        await markDMAsRead(userId);
+      } catch (error) {
+        console.error('Failed to mark as read:', error);
+      }
     } catch (error) {
       console.error('Failed to load messages:', error);
     }
@@ -90,43 +166,30 @@ const ChatApp: React.FC = () => {
 
     setSending(true);
     const tempText = messageText.trim();
+    const messageId = Date.now().toString();
     setMessageText('');
 
     try {
-      const response = await sendDirectMessage(selectedChat.identifier, tempText);
-      setMessages([...messages, response.message]);
+      // Send via HTTP API first (to save in database)
+      const response = await sendDMAPI(selectedChat.identifier, tempText);
+      
+      // Add to local messages
+      setMessages(prev => [...prev, response.message]);
+      
+      // Send via WebSocket for real-time delivery
+      if (isConnected) {
+        sendDirectMessage(selectedChat.identifier, tempText, messageId);
+        console.log('📤 Sent via WebSocket');
+      } else {
+        console.warn('⚠️ WebSocket not connected');
+      }
+      
       scrollToBottom();
     } catch (error) {
       console.error('Failed to send message:', error);
       setMessageText(tempText);
     } finally {
       setSending(false);
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      const response = await searchUsers(searchQuery.trim());
-      setSearchResults(response.users);
-    } catch (error) {
-      console.error('Search failed:', error);
-    }
-  };
-
-  const handleAddFriend = async (email: string) => {
-    try {
-      await addFriend(email);
-      loadFriends();
-      setShowSearch(false);
-      setSearchQuery('');
-      setSearchResults([]);
-    } catch (error) {
-      console.error('Failed to add friend:', error);
     }
   };
 
@@ -154,7 +217,7 @@ const ChatApp: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-[#0a0a0a]">
-      {/* Left Sidebar - Contacts */}
+      {/* Left Sidebar */}
       <div className="w-80 bg-[#0a0a0a] border-r border-gray-800 flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-gray-800">
@@ -164,8 +227,35 @@ const ChatApp: React.FC = () => {
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-xl font-bold text-white">Chatty</h1>
+              
+              {/* WebSocket Status Indicator */}
+              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+              }`}>
+                {isConnected ? (
+                  <>
+                    <Wifi className="w-3 h-3" />
+                    <span>Live</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="w-3 h-3" />
+                    <span>Offline</span>
+                  </>
+                )}
+              </div>
             </div>
+            
             <div className="flex items-center gap-1">
+              {!isConnected && (
+                <button
+                  onClick={reconnect}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                  title="Reconnect WebSocket"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+              )}
               <button
                 onClick={() => setShowSettings(true)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
@@ -190,13 +280,12 @@ const ChatApp: React.FC = () => {
             </div>
           </div>
 
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               type="text"
               placeholder="Search contacts..."
-              className="w-full pl-10 pr-4 py-2.5 bg-[#1a1a1a] border border-gray-800 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#1a1a1a] border border-gray-800 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -210,7 +299,7 @@ const ChatApp: React.FC = () => {
               <span className="text-xs text-gray-500">({filteredFriends.length})</span>
             </div>
             <button
-              onClick={() => setShowSearch(true)}
+              onClick={() => setShowAddFriend(true)}
               className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition cursor-pointer"
               title="Add Friend"
             >
@@ -218,36 +307,29 @@ const ChatApp: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setOnlineFilter(!onlineFilter)}
-              className={`text-xs px-3 py-1.5 rounded-lg transition cursor-pointer ${
-                onlineFilter
-                  ? 'bg-green-500/20 text-green-400'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              Show online only
-            </button>
-            <span className="text-xs text-gray-500">
-              ({friends.filter(f => f.isOnline).length} online)
-            </span>
-          </div>
+          <button
+            onClick={() => setOnlineFilter(!onlineFilter)}
+            className={`text-xs px-3 py-1.5 rounded-lg transition cursor-pointer ${
+              onlineFilter
+                ? 'bg-green-500/20 text-green-400'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Show online only ({friends.filter(f => f.isOnline).length})
+          </button>
         </div>
 
         {/* Contacts List */}
         <div className="flex-1 overflow-y-auto">
           {filteredFriends.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-3">
-                <Users className="w-8 h-8 text-gray-600" />
-              </div>
+              <Users className="w-16 h-16 text-gray-600 mb-3" />
               <p className="text-gray-400 font-medium mb-2">
                 {onlineFilter ? 'No friends online' : 'No contacts yet'}
               </p>
               <button
                 onClick={() => {
-                  setShowSearch(true);
+                  setShowAddFriend(true);
                   setOnlineFilter(false);
                 }}
                 className="text-sm text-blue-500 hover:text-blue-400 cursor-pointer"
@@ -295,7 +377,7 @@ const ChatApp: React.FC = () => {
             {/* Chat Header */}
             <div className="h-16 bg-[#1a1a1a] border-b border-gray-800 px-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="relative cursor-pointer" onClick={() => setShowProfile(true)}>
+                <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                     {selectedChat.username[0].toUpperCase()}
                   </div>
@@ -309,29 +391,32 @@ const ChatApp: React.FC = () => {
                     {selectedChat.isOnline ? (
                       <span className="text-green-500">● Online</span>
                     ) : (
-                      `Last seen ${formatDistanceToNow(new Date(), { addSuffix: true })}`
+                      'Offline'
                     )}
                   </p>
                 </div>
               </div>
 
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
-                <MoreVertical className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => loadMessages(selectedChat.identifier)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                  title="Refresh messages"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+                <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0a0a0a]">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-                </div>
-              ) : messages.length === 0 ? (
+              {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <MessageCircle className="w-8 h-8 text-gray-600" />
-                    </div>
+                    <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-3" />
                     <p className="text-gray-400 mb-2">No messages yet</p>
                     <p className="text-sm text-gray-600">Start the conversation!</p>
                   </div>
@@ -398,7 +483,7 @@ const ChatApp: React.FC = () => {
                 onKeyPress={handleKeyPress}
                 placeholder="Type a message..."
                 disabled={sending}
-                className="flex-1 px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
               />
               <button
                 onClick={handleSendMessage}
@@ -416,9 +501,7 @@ const ChatApp: React.FC = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-10 h-10 text-gray-600" />
-              </div>
+              <MessageCircle className="w-20 h-20 text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">
                 Select a chat to start messaging
               </h3>
@@ -430,63 +513,13 @@ const ChatApp: React.FC = () => {
         )}
       </div>
 
-      {/* Search Modal */}
-      {showSearch && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-md border border-gray-800 shadow-2xl">
-            <div className="p-6 border-b border-gray-800 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Add Friend</h3>
-              <button onClick={() => setShowSearch(false)} className="text-gray-400 hover:text-white cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6">
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    if (e.target.value.trim()) handleSearch();
-                  }}
-                  placeholder="Search by name or email..."
-                  className="w-full pl-10 pr-4 py-3 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {searchResults.length > 0 && (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {searchResults.map((searchUser) => (
-                    <div key={searchUser.email} className="flex items-center justify-between p-3 hover:bg-[#0a0a0a] rounded-xl transition">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                          {searchUser.username[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{searchUser.username}</p>
-                          <p className="text-sm text-gray-500">{searchUser.email}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleAddFriend(searchUser.email)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium cursor-pointer"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Profile Modal */}
+      {/* Modals */}
+      <AddFriendModal 
+        isOpen={showAddFriend} 
+        onClose={() => setShowAddFriend(false)}
+        onFriendAdded={loadFriends}
+      />
       <ProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
-
-      {/* Settings Modal */}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );

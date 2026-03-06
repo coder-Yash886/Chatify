@@ -152,7 +152,7 @@ export const markDMAsRead = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    await MessageModel.updateMany(
+    const result = await MessageModel.updateMany(
       {
         from: otherUserId,
         to: req.user.identifier,
@@ -163,7 +163,12 @@ export const markDMAsRead = async (req: AuthRequest, res: Response): Promise<voi
       }
     );
 
-    res.json({ success: true });
+    console.log(`✅ Marked ${result.modifiedCount} messages as read from ${otherUserId}`);
+
+    res.json({ 
+      success: true,
+      markedCount: result.modifiedCount 
+    });
   } catch (error) {
     console.error('Mark as read error:', error);
     res.status(500).json({ success: false, error: 'Server error' });
