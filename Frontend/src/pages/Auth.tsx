@@ -147,7 +147,7 @@ const Auth: React.FC = () => {
                 </div>
               </div>
               <h1 className="text-5xl font-bold text-white mb-4">
-                Welcome {mode === 'login' ? 'Back' : 'to Chatty'}
+                Welcome {mode === 'login' ? 'Back' : 'to Chatify'}
               </h1>
               <p className="text-gray-400 text-lg leading-relaxed">
                 {mode === 'login' 
@@ -181,17 +181,17 @@ const Auth: React.FC = () => {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-8 ">
+        <div className="w-full  max-w-xl">
           {/* Logo for mobile */}
           <div className="lg:hidden mb-8 text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl mb-4">
               <MessageSquare className="w-8 h-8 text-white" strokeWidth={2} />
             </div>
-            <h2 className="text-2xl font-bold text-white">Chatty</h2>
+            <h2 className="text-2xl font-bold text-white">Chatify</h2>
           </div>
 
-          <div className="bg-[#1a1a1a] rounded-2xl p-8 shadow-2xl border border-gray-800">
+          <div className="bg-[#1a1a1a] rounded-2xl p-8 shadow-2xl border border-gray-800 min-h-[400px]">
             {step === 'credentials' ? (
               <>
                 <div className="mb-8">
@@ -205,10 +205,10 @@ const Auth: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-9">
                   {mode === 'register' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-4">
                         Full Name
                       </label>
                       <div className="relative">
@@ -218,7 +218,7 @@ const Auth: React.FC = () => {
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           placeholder="John Doe"
-                          className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full pl-11 pr-4 py-6 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         />
                       </div>
                     </div>
@@ -235,7 +235,7 @@ const Auth: React.FC = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full pl-11 pr-4 py-6 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       />
                     </div>
                   </div>
@@ -251,7 +251,7 @@ const Auth: React.FC = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className="w-full pl-11 pr-11 py-3 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full pl-11 pr-11 py-6 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       />
                       <button
                         type="button"
@@ -355,3 +355,6 @@ const Auth: React.FC = () => {
 };
 
 export default Auth;
+
+
+
