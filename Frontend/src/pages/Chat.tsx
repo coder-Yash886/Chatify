@@ -1,234 +1,3 @@
-
-// import React, { useState, useRef, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { Send, LogOut, Users, LayoutDashboard, MessageSquare } from 'lucide-react';
-// import { useAuth } from '../context/AuthContext';
-// import { useWebSocket } from '../context/WebSocketContext';
-// import ChatMessage from '../components/ChatMessage';
-// import RoomList from '../components/RoomList';
-// import TypingIndicator from '../components/TypingIndicator';
-// import Dashboard from '../components/Dashboard';
-
-// type ActiveTab = 'dashboard' | 'chat';
-
-// const Chat: React.FC = () => {
-//   const navigate = useNavigate();
-//   const { user, logout } = useAuth();
-//   const {
-//     currentRoom,
-//     messages,
-//     typingUsers,
-//     roomUsers,
-//     sendMessage,
-//     sendTyping,
-//     sendStopTyping,
-//     isConnected,
-//   } = useWebSocket();
-
-//   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-//   const [messageText, setMessageText] = useState('');
-//   const [typingTimeout, setTypingTimeout] = useState<number | null>(null);
-//   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-//   useEffect(() => {
-//     scrollToBottom();
-//   }, [messages]);
-
-//   const scrollToBottom = () => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-//   };
-
-//   const handleSendMessage = () => {
-//     if (!messageText.trim() || !currentRoom) return;
-
-//     sendMessage(messageText.trim());
-//     setMessageText('');
-//     sendStopTyping();
-//   };
-
-//   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setMessageText(e.target.value);
-
-//     if (e.target.value.trim()) {
-//       sendTyping();
-
-//       if (typingTimeout) {
-//         clearTimeout(typingTimeout);
-//       }
-
-//       const timeout = window.setTimeout(() => {
-//         sendStopTyping();
-//       }, 2000);
-
-//       setTypingTimeout(timeout);
-//     } else {
-//       sendStopTyping();
-//     }
-//   };
-
-//   const handleLogout = async () => {
-//     await logout();
-//     navigate('/');
-//   };
-
-//   const handleKeyPress = (e: React.KeyboardEvent) => {
-//     if (e.key === 'Enter' && !e.shiftKey) {
-//       e.preventDefault();
-//       handleSendMessage();
-//     }
-//   };
-
-//   return (
-//     <div className="flex h-screen bg-gray-50">
-//       {/* Sidebar */}
-//       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-//         {/* Sidebar Header */}
-//         <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-600">
-//           <div className="flex items-center justify-between mb-3">
-//             <h2 className="text-xl font-bold text-white">
-//               💬 Chattify
-//             </h2>
-//             <button
-//               onClick={handleLogout}
-//               className="p-2 hover:bg-white/20 rounded-lg transition"
-//               title="Logout"
-//             >
-//               <LogOut className="w-5 h-5 text-white" />
-//             </button>
-//           </div>
-//           <div className="flex items-center gap-2 text-primary-100 text-sm">
-//             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
-//             <span>{user?.username}</span>
-//           </div>
-//         </div>
-
-//         {/* Navigation Tabs */}
-//         <div className="p-4 border-b border-gray-200">
-//           <div className="flex gap-2">
-//             <button
-//               onClick={() => setActiveTab('dashboard')}
-//               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition ${
-//                 activeTab === 'dashboard'
-//                   ? 'bg-primary-500 text-white'
-//                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-//               }`}
-//             >
-//               <LayoutDashboard className="w-4 h-4" />
-//               Dashboard
-//             </button>
-//             <button
-//               onClick={() => setActiveTab('chat')}
-//               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition ${
-//                 activeTab === 'chat'
-//                   ? 'bg-primary-500 text-white'
-//                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-//               }`}
-//             >
-//               <MessageSquare className="w-4 h-4" />
-//               Rooms
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Rooms (only show when chat tab active) */}
-//         {activeTab === 'chat' && (
-//           <div className="flex-1 overflow-y-auto p-4">
-//             <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-//               Rooms
-//             </h3>
-//             <RoomList />
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Main Content Area */}
-//       <div className="flex-1 flex flex-col">
-//         {activeTab === 'dashboard' ? (
-//           <div className="flex-1 overflow-y-auto p-6">
-//             <Dashboard />
-//           </div>
-//         ) : currentRoom ? (
-//           <>
-//             {/* Chat Header */}
-//             <div className="bg-white border-b border-gray-200 p-4">
-//               <div className="flex items-center justify-between">
-//                 <div>
-//                   <h2 className="text-xl font-semibold text-gray-800">
-//                     # {currentRoom}
-//                   </h2>
-//                   <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-//                     <Users className="w-4 h-4" />
-//                     <span>{roomUsers.length} members online</span>
-//                   </div>
-//                 </div>
-//                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
-//                   isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-//                 }`}>
-//                   <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-//                   {isConnected ? 'Connected' : 'Disconnected'}
-//                 </div>
-//               </div>
-//             </div>
-
-//             {/* Messages */}
-//             <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin">
-//               {messages.length === 0 ? (
-//                 <div className="flex items-center justify-center h-full">
-//                   <div className="text-center text-gray-400">
-//                     <p className="text-lg font-medium">No messages yet</p>
-//                     <p className="text-sm">Be the first to say something!</p>
-//                   </div>
-//                 </div>
-//               ) : (
-//                 <>
-//                   {messages.map((msg, index) => (
-//                     <ChatMessage key={index} message={msg} />
-//                   ))}
-//                   <div ref={messagesEndRef} />
-//                 </>
-//               )}
-//             </div>
-
-//             {/* Typing Indicator */}
-//             <TypingIndicator typingUsers={typingUsers} />
-
-//             {/* Message Input */}
-//             <div className="bg-white border-t border-gray-200 p-4">
-//               <div className="flex gap-2">
-//                 <input
-//                   type="text"
-//                   value={messageText}
-//                   onChange={handleTyping}
-//                   onKeyPress={handleKeyPress}
-//                   placeholder="Type a message..."
-//                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
-//                 />
-//                 <button
-//                   onClick={handleSendMessage}
-//                   disabled={!messageText.trim()}
-//                   className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-//                 >
-//                   <Send className="w-5 h-5" />
-//                   Send
-//                 </button>
-//               </div>
-//             </div>
-//           </>
-//         ) : (
-//           <div className="flex items-center justify-center h-full">
-//             <div className="text-center text-gray-400">
-//               <p className="text-lg font-medium">Select a room to start chatting</p>
-//               <p className="text-sm">Choose from the Rooms tab</p>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Chat;
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -244,7 +13,8 @@ import {
   Plus,
   MessageCircle,
   Check,
-  CheckCheck
+  CheckCheck,
+  RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -256,7 +26,7 @@ import {
 } from '../api/api';
 import { format, formatDistanceToNow } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
-import SettingsModal from '../components/SettingsModel';
+import SettingsModal from '../components/SettingsModal';
 import AddFriendModal from '../components/AddFriendModal';
 
 const ChatApp: React.FC = () => {
@@ -275,16 +45,20 @@ const ChatApp: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // Load friends every 5 seconds
   useEffect(() => {
     loadFriends();
-    const interval = setInterval(loadFriends, 10000);
+    const interval = setInterval(loadFriends, 5000);
     return () => clearInterval(interval);
   }, []);
 
+  // Load messages every 2 seconds when chat is selected
   useEffect(() => {
     if (selectedChat) {
       loadMessages(selectedChat.identifier);
-      const interval = setInterval(() => loadMessages(selectedChat.identifier), 3000);
+      const interval = setInterval(() => {
+        loadMessages(selectedChat.identifier);
+      }, 2000);
       return () => clearInterval(interval);
     }
   }, [selectedChat]);
@@ -297,7 +71,6 @@ const ChatApp: React.FC = () => {
     try {
       const response = await getFriends();
       setFriends(response.friends);
-      console.log('👥 Loaded friends:', response.friends);
     } catch (error) {
       console.error('Failed to load friends:', error);
     }
@@ -321,9 +94,11 @@ const ChatApp: React.FC = () => {
 
     try {
       const response = await sendDirectMessage(selectedChat.identifier, tempText);
-      setMessages([...messages, response.message]);
-      console.log('✅ Message sent:', response.message);
+      // Immediately add to messages
+      setMessages(prev => [...prev, response.message]);
       scrollToBottom();
+      // Reload to get any messages from other user
+      setTimeout(() => loadMessages(selectedChat.identifier), 500);
     } catch (error) {
       console.error('Failed to send message:', error);
       setMessageText(tempText);
@@ -503,18 +278,27 @@ const ChatApp: React.FC = () => {
                     {selectedChat.isOnline ? (
                       <span className="text-green-500">● Online</span>
                     ) : (
-                      `Last seen ${formatDistanceToNow(new Date(), { addSuffix: true })}`
+                      'Offline'
                     )}
                   </p>
                 </div>
               </div>
 
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
-                <MoreVertical className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => loadMessages(selectedChat.identifier)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                  title="Refresh messages"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+                <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            {/* Messages */}
+            {/* Messages - Same as before */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0a0a0a]">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
