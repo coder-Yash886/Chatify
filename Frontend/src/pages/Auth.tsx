@@ -142,11 +142,11 @@ const Auth: React.FC = () => {
           {step === 'credentials' ? (
             <>
               <div className="mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl">
-                  <MessageSquare className="w-10 h-10 text-white" strokeWidth={2} />
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                  <MessageSquare className="w-12 h-12 text-white" strokeWidth={2} />
                 </div>
               </div>
-              <h1 className="text-5xl font-bold text-white mb-4">
+              <h1 className="text-5xl font-bold text-white mb-6">
                 Welcome {mode === 'login' ? 'Back' : 'to Chatify'}
               </h1>
               <p className="text-gray-400 text-lg leading-relaxed">
@@ -165,11 +165,11 @@ const Auth: React.FC = () => {
           ) : (
             <>
               <div className="mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl">
-                  <Mail className="w-10 h-10 text-white" strokeWidth={2} />
+                <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                  <Mail className="w-12 h-12 text-white" strokeWidth={2} />
                 </div>
               </div>
-              <h1 className="text-4xl font-bold text-white mb-4">
+              <h1 className="text-5xl font-bold text-white mb-6">
                 Check Your Email
               </h1>
               <p className="text-gray-400 text-lg">
@@ -181,112 +181,118 @@ const Auth: React.FC = () => {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-8 ">
-        <div className="w-full  max-w-xl">
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-xl"> {/* Changed from max-w-md to max-w-xl for bigger form */}
           {/* Logo for mobile */}
           <div className="lg:hidden mb-8 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl mb-4">
-              <MessageSquare className="w-8 h-8 text-white" strokeWidth={2} />
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl mb-4">
+              <MessageSquare className="w-10 h-10 text-white" strokeWidth={2} />
             </div>
-            <h2 className="text-2xl font-bold text-white">Chatify</h2>
+            <h2 className="text-3xl font-bold text-white">Chatify</h2>
           </div>
 
-          <div className="bg-[#1a1a1a] rounded-2xl p-8 shadow-2xl border border-gray-800 min-h-[400px]">
+          {/* Main Form Container - Bigger Size */}
+          <div className="bg-[#1a1a1a] rounded-3xl p-10 shadow-2xl border border-gray-800">
             {step === 'credentials' ? (
               <>
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-white mb-2">
+                {/* Header */}
+                <div className="mb-10">
+                  <h2 className="text-4xl font-bold text-white mb-3">
                     {mode === 'login' ? 'Welcome Back' : 'Create Account'}
                   </h2>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 text-base">
                     {mode === 'login' 
                       ? 'Sign in to your account' 
-                      : 'Get started with Chatty'}
+                      : 'Get started with Chatify'}
                   </p>
                 </div>
 
-                <div className="space-y-9">
+                {/* Form Fields - Bigger Inputs */}
+                <div className="space-y-6">
                   {mode === 'register' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-4">
+                      <label className="block text-base font-medium text-gray-300 mb-3">
                         Full Name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <User className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500" />
                         <input
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           placeholder="John Doe"
-                          className="w-full pl-11 pr-4 py-6 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                          className="w-full pl-14 pr-5 py-4 text-base bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         />
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-base font-medium text-gray-300 mb-3">
                       Email Address
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full pl-11 pr-4 py-6 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full pl-14 pr-5 py-4 text-base bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-base font-medium text-gray-300 mb-3">
                       Password
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className="w-full pl-11 pr-11 py-6 bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full pl-14 pr-14 py-4 text-base bg-[#0a0a0a] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition"
                       >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
                       </button>
                     </div>
                   </div>
 
+                  {/* Error/Success Messages */}
                   {error && (
-                    <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm">
+                    <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl text-base">
                       {error}
                     </div>
                   )}
 
                   {message && (
-                    <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl text-sm">
+                    <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-5 py-4 rounded-xl text-base">
                       {message}
                     </div>
                   )}
 
+                  {/* Submit Button */}
                   <button
                     onClick={handleSubmitCredentials}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl text-base font-semibold hover:from-blue-700 hover:to-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg mt-2"
                   >
                     {loading ? 'Processing...' : mode === 'register' ? 'Create Account' : 'Sign In'}
                   </button>
 
-                  <div className="text-center mt-6">
+                  {/* Switch Mode */}
+                  <div className="text-center pt-6">
                     <button
                       onClick={switchMode}
-                      className="text-sm text-gray-400 hover:text-white transition"
+                      className="text-base text-gray-400 hover:text-white transition"
                     >
                       {mode === 'login' 
                         ? "Don't have an account? " 
@@ -300,11 +306,12 @@ const Auth: React.FC = () => {
               </>
             ) : (
               <>
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-white mb-2">
+                {/* OTP Verification */}
+                <div className="text-center mb-10">
+                  <h3 className="text-3xl font-bold text-white mb-3">
                     Verify Your Email
                   </h3>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-400 text-base">
                     Enter the 6-digit code sent to
                     <br />
                     <span className="font-medium text-blue-400">{email}</span>
@@ -319,28 +326,28 @@ const Auth: React.FC = () => {
                 />
 
                 {error && (
-                  <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm text-center">
+                  <div className="mt-6 bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-4 rounded-xl text-base text-center">
                     {error}
                   </div>
                 )}
 
                 {message && (
-                  <div className="mt-4 bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl text-sm text-center">
+                  <div className="mt-6 bg-green-500/10 border border-green-500/30 text-green-400 px-5 py-4 rounded-xl text-base text-center">
                     {message}
                   </div>
                 )}
 
-                <div className="flex gap-3 mt-6">
+                <div className="flex gap-4 mt-8">
                   <button
                     onClick={() => setStep('credentials')}
-                    className="flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl font-medium hover:bg-gray-700 transition"
+                    className="flex-1 bg-gray-800 text-gray-300 py-4 rounded-xl text-base font-medium hover:bg-gray-700 transition"
                   >
                     Change Email
                   </button>
                   <button
                     onClick={handleResendOTP}
                     disabled={loading}
-                    className="flex-1 bg-blue-600/20 text-blue-400 py-3 rounded-xl font-medium hover:bg-blue-600/30 transition disabled:opacity-50"
+                    className="flex-1 bg-blue-600/20 text-blue-400 py-4 rounded-xl text-base font-medium hover:bg-blue-600/30 transition disabled:opacity-50"
                   >
                     Resend Code
                   </button>
@@ -355,6 +362,3 @@ const Auth: React.FC = () => {
 };
 
 export default Auth;
-
-
-
