@@ -1,7 +1,7 @@
-
 @import "tailwindcss";
 
 @theme {
+  /* Primary Colors */
   --color-primary-50: #f0f4ff;
   --color-primary-100: #e0eaff;
   --color-primary-200: #c7d7ff;
@@ -12,42 +12,119 @@
   --color-primary-700: #4553b8;
   --color-primary-800: #3a4494;
   --color-primary-900: #2f3775;
+
+  /* Dark Theme Colors */
+  --color-dark-bg-primary: #0a0a0a;
+  --color-dark-bg-secondary: #1a1a1a;
+  --color-dark-bg-tertiary: #2a2a2a;
+  --color-dark-text-primary: #ffffff;
+  --color-dark-text-secondary: #9ca3af;
+  --color-dark-border: #374151;
+
+  /* Light Theme Colors */
+  --color-light-bg-primary: #ffffff;
+  --color-light-bg-secondary: #f9fafb;
+  --color-light-bg-tertiary: #f3f4f6;
+  --color-light-text-primary: #111827;
+  --color-light-text-secondary: #6b7280;
+  --color-light-border: #e5e7eb;
 }
 
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Root Theme Variables */
+:root {
+  --bg-primary: var(--color-dark-bg-primary);
+  --bg-secondary: var(--color-dark-bg-secondary);
+  --bg-tertiary: var(--color-dark-bg-tertiary);
+  --text-primary: var(--color-dark-text-primary);
+  --text-secondary: var(--color-dark-text-secondary);
+  --border-color: var(--color-dark-border);
+}
+
+/* Light Theme */
+.light {
+  --bg-primary: var(--color-light-bg-primary);
+  --bg-secondary: var(--color-light-bg-secondary);
+  --bg-tertiary: var(--color-light-bg-tertiary);
+  --text-primary: var(--color-light-text-primary);
+  --text-secondary: var(--color-light-text-secondary);
+  --border-color: var(--color-light-border);
+}
+
+/* Dark Theme (explicit) */
+.dark {
+  --bg-primary: var(--color-dark-bg-primary);
+  --bg-secondary: var(--color-dark-bg-secondary);
+  --bg-tertiary: var(--color-dark-bg-tertiary);
+  --text-primary: var(--color-dark-text-primary);
+  --text-secondary: var(--color-dark-text-secondary);
+  --border-color: var(--color-dark-border);
+}
+
+/* Body Styles */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f9fafb;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom scrollbar */
+/* Light Theme Body */
+.light body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Dark Theme Body */
+.dark body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Custom Scrollbar - Dark Theme */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1a1a1a;
   border-radius: 10px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
+  background: #374151;
   border-radius: 10px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* Custom Scrollbar - Light Theme */
+.light .scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.light .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+}
+
+.light .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #a0aec0;
 }
+
+/* Animations */
 
 /* Fade in animation */
 @keyframes fadeIn {
@@ -123,28 +200,153 @@ body {
   animation: spin 1s linear infinite;
 }
 
-
-/* Fade in animation */
-@keyframes fadeIn {
+/* Scale in animation */
+@keyframes scaleIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
 }
 
-/* Add cursor pointer globally for buttons */
+/* Shake animation */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Global Cursor Styles */
 button {
   cursor: pointer;
 }
 
 a {
   cursor: pointer;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  cursor: text;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+/* Utility Classes for Theme */
+.bg-theme-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.border-theme {
+  border-color: var(--border-color);
+}
+
+/* Focus Styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Selection Styles */
+::selection {
+  background-color: var(--color-primary-500);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--color-primary-500);
+  color: white;
+}
+
+/* Smooth Transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Disable transitions during theme change for instant switch */
+.theme-transitioning * {
+  transition: none !important;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Media Query Support */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --bg-primary: var(--color-dark-bg-primary);
+    --bg-secondary: var(--color-dark-bg-secondary);
+    --bg-tertiary: var(--color-dark-bg-tertiary);
+    --text-primary: var(--color-dark-text-primary);
+    --text-secondary: var(--color-dark-text-secondary);
+    --border-color: var(--color-dark-border);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) {
+    --bg-primary: var(--color-light-bg-primary);
+    --bg-secondary: var(--color-light-bg-secondary);
+    --bg-tertiary: var(--color-light-bg-tertiary);
+    --text-primary: var(--color-light-text-primary);
+    --text-secondary: var(--color-light-text-secondary);
+    --border-color: var(--color-light-border);
+  }
 }
