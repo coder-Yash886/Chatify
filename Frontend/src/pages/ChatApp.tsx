@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWebSocket } from '../context/WebSocketContext';
+import { useThemeClasses } from '../hooks/useThemeClasses';
 import { 
   getFriends, 
   getDirectMessages,
@@ -36,6 +37,7 @@ import AddFriendModal from '../components/AddFriendModal';
 const ChatApp: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const classes = useThemeClasses();
   const { isConnected, sendDirectMessage, onNewDirectMessage, onStatusChange, reconnect } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const notificationSound = useRef<HTMLAudioElement | null>(null);
@@ -216,17 +218,17 @@ const ChatApp: React.FC = () => {
     : friends;
 
   return (
-    <div className="flex h-screen bg-[#0a0a0a]">
+    <div className={`flex h-screen ${classes.bgPrimary}`}>
       {/* Left Sidebar */}
-      <div className="w-80 bg-[#0a0a0a] border-r border-gray-800 flex flex-col">
+      <div className={`w-80 ${classes.bgPrimary} border-r ${classes.border} flex flex-col`}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-800">
+        <div className={`p-4 border-b ${classes.border}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-white">Chatify</h1>
+              <h1 className={`text-xl font-bold ${classes.textPrimary}`}>Chatty</h1>
               
               {/* WebSocket Status Indicator */}
               <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
@@ -250,7 +252,7 @@ const ChatApp: React.FC = () => {
               {!isConnected && (
                 <button
                   onClick={reconnect}
-                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                  className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}
                   title="Reconnect WebSocket"
                 >
                   <RefreshCw className="w-5 h-5" />
@@ -258,14 +260,14 @@ const ChatApp: React.FC = () => {
               )}
               <button
                 onClick={() => setShowSettings(true)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}
                 title="Settings"
               >
                 <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setShowProfile(true)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}
                 title="Profile"
               >
                 <User className="w-5 h-5" />
@@ -285,17 +287,17 @@ const ChatApp: React.FC = () => {
             <input
               type="text"
               placeholder="Search contacts..."
-              className="w-full pl-10 pr-4 py-2.5 bg-[#1a1a1a] border border-gray-800 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full pl-10 pr-4 py-2.5 ${classes.input} border rounded-xl text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
         </div>
 
         {/* Contacts Header */}
-        <div className="p-4 border-b border-gray-800">
+        <div className={`p-4 border-b ${classes.border}`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-white">Contacts</h2>
+              <h2 className={`text-sm font-semibold ${classes.textPrimary}`}>Contacts</h2>
               <span className="text-xs text-gray-500">({filteredFriends.length})</span>
             </div>
             <button
@@ -312,7 +314,7 @@ const ChatApp: React.FC = () => {
             className={`text-xs px-3 py-1.5 rounded-lg transition cursor-pointer ${
               onlineFilter
                 ? 'bg-green-500/20 text-green-400'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                : `${classes.bgTertiary} ${classes.textSecondary} ${classes.hoverBg}`
             }`}
           >
             Show online only ({friends.filter(f => f.isOnline).length})
@@ -324,7 +326,7 @@ const ChatApp: React.FC = () => {
           {filteredFriends.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
               <Users className="w-16 h-16 text-gray-600 mb-3" />
-              <p className="text-gray-400 font-medium mb-2">
+              <p className={`${classes.textSecondary} font-medium mb-2`}>
                 {onlineFilter ? 'No friends online' : 'No contacts yet'}
               </p>
               <button
@@ -342,8 +344,8 @@ const ChatApp: React.FC = () => {
               <button
                 key={friend.identifier}
                 onClick={() => setSelectedChat(friend)}
-                className={`w-full p-4 flex items-center gap-3 hover:bg-gray-900 transition border-b border-gray-800/50 cursor-pointer ${
-                  selectedChat?.identifier === friend.identifier ? 'bg-gray-900' : ''
+                className={`w-full p-4 flex items-center gap-3 ${classes.hoverBgLight} transition border-b ${classes.borderLight} cursor-pointer ${
+                  selectedChat?.identifier === friend.identifier ? classes.activeBg : ''
                 }`}
               >
                 <div className="relative">
@@ -351,11 +353,11 @@ const ChatApp: React.FC = () => {
                     {friend.username[0].toUpperCase()}
                   </div>
                   {friend.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
+                    <div className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 ${classes.bgPrimary} rounded-full`}></div>
                   )}
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="font-medium text-white truncate">{friend.username}</p>
+                  <p className={`font-medium ${classes.textPrimary} truncate`}>{friend.username}</p>
                   <p className="text-sm text-gray-500 truncate">
                     {friend.isOnline ? (
                       <span className="text-green-500">● Online</span>
@@ -375,18 +377,18 @@ const ChatApp: React.FC = () => {
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="h-16 bg-[#1a1a1a] border-b border-gray-800 px-6 flex items-center justify-between">
+            <div className={`h-16 ${classes.bgSecondary} border-b ${classes.border} px-6 flex items-center justify-between`}>
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                     {selectedChat.username[0].toUpperCase()}
                   </div>
                   {selectedChat.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#1a1a1a] rounded-full"></div>
+                    <div className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 ${classes.bgSecondary} rounded-full`}></div>
                   )}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">{selectedChat.username}</h3>
+                  <h3 className={`font-semibold ${classes.textPrimary}`}>{selectedChat.username}</h3>
                   <p className="text-xs text-gray-500">
                     {selectedChat.isOnline ? (
                       <span className="text-green-500">● Online</span>
@@ -400,24 +402,24 @@ const ChatApp: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => loadMessages(selectedChat.identifier)}
-                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer"
+                  className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}
                   title="Refresh messages"
                 >
                   <RefreshCw className="w-5 h-5" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
+                <button className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}>
                   <MoreVertical className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0a0a0a]">
+            <div className={`flex-1 overflow-y-auto p-6 space-y-4 ${classes.bgPrimary}`}>
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-400 mb-2">No messages yet</p>
+                    <p className={`${classes.textSecondary} mb-2`}>No messages yet</p>
                     <p className="text-sm text-gray-600">Start the conversation!</p>
                   </div>
                 </div>
@@ -439,7 +441,7 @@ const ChatApp: React.FC = () => {
                               className={`px-4 py-2.5 rounded-2xl ${
                                 isOwn
                                   ? 'bg-blue-600 text-white rounded-br-sm'
-                                  : 'bg-[#1a1a1a] text-white rounded-bl-sm border border-gray-800'
+                                  : `${classes.bgSecondary} ${classes.textPrimary} rounded-bl-sm border ${classes.border}`
                               }`}
                             >
                               <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
@@ -469,11 +471,11 @@ const ChatApp: React.FC = () => {
             </div>
 
             {/* Message Input */}
-            <div className="h-20 bg-[#1a1a1a] border-t border-gray-800 px-6 flex items-center gap-3">
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
+            <div className={`h-20 ${classes.bgSecondary} border-t ${classes.border} px-6 flex items-center gap-3`}>
+              <button className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}>
                 <Paperclip className="w-5 h-5" />
               </button>
-              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition cursor-pointer">
+              <button className={`p-2 ${classes.textSecondary} ${classes.hoverText} ${classes.hoverBg} rounded-lg transition cursor-pointer`}>
                 <Smile className="w-5 h-5" />
               </button>
               <input
@@ -483,7 +485,7 @@ const ChatApp: React.FC = () => {
                 onKeyPress={handleKeyPress}
                 placeholder="Type a message..."
                 disabled={sending}
-                className="flex-1 px-4 py-2.5 bg-[#0a0a0a] border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                className={`flex-1 px-4 py-2.5 ${classes.input} border rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50`}
               />
               <button
                 onClick={handleSendMessage}
@@ -499,13 +501,13 @@ const ChatApp: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
+          <div className={`flex-1 flex items-center justify-center ${classes.bgPrimary}`}>
             <div className="text-center">
               <MessageCircle className="w-20 h-20 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3 className={`text-xl font-semibold ${classes.textPrimary} mb-2`}>
                 Select a chat to start messaging
               </h3>
-              <p className="text-gray-500">
+              <p className={classes.textSecondary}>
                 Choose a conversation from the contacts list
               </p>
             </div>
