@@ -33,6 +33,7 @@ import { format } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
 import SettingsModal from '../components/SettingsModal';
 import AddFriendModal from '../components/AddFriendModal';
+import EmojiPicker from "emoji-picker-react";
 
 const ChatApp: React.FC = () => {
   const navigate = useNavigate();
