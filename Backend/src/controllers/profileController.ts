@@ -1,203 +1,129 @@
-import { Response } from "express";
-import { AuthRequest } from "../middleware/auth";
-import UserModel from "../models/User";
+import { Response } from 'express';
+   import { AuthRequest } from '../middleware/auth';
+   import UserModel from '../models/User';
 
-interface UserProfile {
-  username: string;
-  email: string;
-  avatar?: string;
-  bio?: string;
-  status: "online" | "offline" | "away" | "busy";
-  statusMessage?: string;
-  createdAt: string;
-  lastSeen: string;
-}
+   export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+     try {
+       if (!req.user) {
+         res.status(401).json({ success: false, error: 'Not authenticated' });
+         return;
+       }
 
-const profiles = new Map<string, UserProfile>();
+       const user = await UserModel.findOne({ email: req.user.identifier });
 
-// ================= GET PROFILE =================
-export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ success: false, error: "Not authenticated" });
-      return;
-    }
+       if (!user) {
+         res.status(404).json({ success: false, error: 'User not found' });
+         return;
+       }
 
-    const userId = (req.params.userId as string) || req.user.identifier;
+       res.json({
+         success: true,
+         profile: {
+           username: user.username,
+           email: user.email,
+           profilePicture: user.profilePicture || '',
+           bio: user.bio || '',
+           status: user.status || 'Hey there! I am using Chatty',
+           createdAt: user.createdAt,
+         },
+       });
+     } catch (error) {
+       console.error('Get profile error:', error);
+       res.status(500).json({ success: false, error: 'Server error' });
+     }
+   };
 
-    let profile = profiles.get(userId);
+   export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+     try {
+       const { userId } = req.params;
+       const user = await UserModel.findOne({ email: userId });
 
-    if (!profile) {
-      const user = await UserModel.findOne({ email: userId });
+       if (!user) {
+         res.status(404).json({ success: false, error: 'User not found' });
+         return;
+       }
 
-      if (!user) {
-        res.status(404).json({ success: false, error: "User not found" });
-        return;
-      }
+       res.json({
+         success: true,
+         profile: {
+           username: user.username,
+           email: user.email,
+           profilePicture: user.profilePicture || '',
+           bio: user.bio || '',
+           status: user.status || 'Hey there! I am using Chatty',
+         },
+       });
+     } catch (error) {
+       console.error('Get user profile error:', error);
+       res.status(500).json({ success: false, error: 'Server error' });
+     }
+   };
 
-      profile = {
-        username: user.username,
-        email: user.email,
-        status: "offline",
-        createdAt: new Date().toISOString(),
-        lastSeen: new Date().toISOString(),
-      };
+   export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+     try {
+       if (!req.user) {
+         res.status(401).json({ success: false, error: 'Not authenticated' });
+         return;
+       }
 
-      profiles.set(userId, profile);
-    }
+       const { username, bio, status, profilePicture } = req.body;
+       const user = await UserModel.findOne({ email: req.user.identifier });
 
-    res.json({
-      success: true,
-      profile,
-    });
-  } catch (err) {
-    console.error("Get profile error:", err);
-    res.status(500).json({ success: false, error: "Server error" });
-  }
-};
+       if (!user) {
+         res.status(404).json({ success: false, error: 'User not found' });
+         return;
+       }
 
-// ================= UPDATE PROFILE =================
-export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ success: false, error: "Not authenticated" });
-      return;
-    }
+       if (username && username.trim()) user.username = username.trim();
+       if (bio !== undefined) user.bio = bio.trim().substring(0, 200);
+       if (status !== undefined) user.status = status.trim().substring(0, 100);
+       if (profilePicture !== undefined) {
+         if (profilePicture && profilePicture.length > 7000000) {
+           res.status(400).json({ success: false, error: 'Profile picture too large' });
+           return;
+         }
+         user.profilePicture = profilePicture;
+       }
 
-    const { avatar, bio, statusMessage } = req.body;
+       await user.save();
 
-    let profile = profiles.get(req.user.identifier);
+       res.json({
+         success: true,
+         profile: {
+           username: user.username,
+           email: user.email,
+           profilePicture: user.profilePicture || '',
+           bio: user.bio || '',
+           status: user.status || '',
+         },
+       });
+     } catch (error) {
+       console.error('Update profile error:', error);
+       res.status(500).json({ success: false, error: 'Server error' });
+     }
+   };
 
-    if (!profile) {
-      const user = await UserModel.findOne({ email: req.user.identifier });
+   export const updateStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+     try {
+       if (!req.user) {
+         res.status(401).json({ success: false, error: 'Not authenticated' });
+         return;
+       }
 
-      if (!user) {
-        res.status(404).json({ success: false, error: "User not found" });
-        return;
-      }
+       const { status } = req.body;
+       const user = await UserModel.findOne({ email: req.user.identifier });
 
-      profile = {
-        username: user.username,
-        email: user.email,
-        status: "online",
-        createdAt: new Date().toISOString(),
-        lastSeen: new Date().toISOString(),
-      };
-    }
+       if (!user) {
+         res.status(404).json({ success: false, error: 'User not found' });
+         return;
+       }
 
-    if (avatar !== undefined) profile.avatar = avatar;
-    if (bio !== undefined) profile.bio = bio;
-    if (statusMessage !== undefined) profile.statusMessage = statusMessage;
+       user.status = status?.trim().substring(0, 100) || 'Hey there! I am using Chatty';
+       await user.save();
 
-    profiles.set(req.user.identifier, profile);
-
-    res.json({
-      success: true,
-      profile,
-    });
-  } catch (err) {
-    console.error("Update profile error:", err);
-    res.status(500).json({ success: false, error: "Server error" });
-  }
-};
-
-// ================= UPDATE STATUS =================
-export const updateStatus = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ success: false, error: "Not authenticated" });
-      return;
-    }
-
-    const { status } = req.body;
-
-    if (!["online", "offline", "away", "busy"].includes(status)) {
-      res.status(400).json({ success: false, error: "Invalid status" });
-      return;
-    }
-
-    let profile = profiles.get(req.user.identifier);
-
-    if (!profile) {
-      const user = await UserModel.findOne({ email: req.user.identifier });
-
-      if (!user) {
-        res.status(404).json({ success: false, error: "User not found" });
-        return;
-      }
-
-      profile = {
-        username: user.username,
-        email: user.email,
-        status: "online",
-        createdAt: new Date().toISOString(),
-        lastSeen: new Date().toISOString(),
-      };
-    }
-
-    profile.status = status;
-    profile.lastSeen = new Date().toISOString();
-
-    profiles.set(req.user.identifier, profile);
-
-    res.json({
-      success: true,
-      status,
-    });
-  } catch (err) {
-    console.error("Update status error:", err);
-    res.status(500).json({ success: false, error: "Server error" });
-  }
-};
-
-// ================= SEARCH USERS =================
-export const searchUsers = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({ success: false, error: "Not authenticated" });
-      return;
-    }
-
-    const query = (req.query.query as string)?.toLowerCase();
-
-    if (!query) {
-      res.json({ success: true, users: [] });
-      return;
-    }
-
-    const users = await UserModel.find({
-      $or: [
-        { username: { $regex: query, $options: "i" } },
-        { email: { $regex: query, $options: "i" } },
-      ],
-    }).select("-password");
-
-    const results: UserProfile[] = [];
-
-    users.forEach((user) => {
-      if (user.email === req.user!.identifier) return;
-
-      let profile = profiles.get(user.email);
-
-      if (!profile) {
-        profile = {
-          username: user.username,
-          email: user.email,
-          status: "offline",
-          createdAt: new Date().toISOString(),
-          lastSeen: new Date().toISOString(),
-        };
-      }
-
-      results.push(profile);
-    });
-
-    res.json({
-      success: true,
-      users: results,
-    });
-  } catch (err) {
-    console.error("Search users error:", err);
-    res.status(500).json({ success: false, error: "Server error" });
-  }
-};
+       res.json({ success: true, status: user.status });
+     } catch (error) {
+       console.error('Update status error:', error);
+       res.status(500).json({ success: false, error: 'Server error' });
+     }
+   };

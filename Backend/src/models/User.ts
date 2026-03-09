@@ -1,4 +1,3 @@
-
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
@@ -6,10 +5,10 @@ export interface IUser extends Document {
   email: string;
   password: string;
   friends: string[];
-  profilePicture?: string; 
+  profilePicture?: string;
   bio?: string;
-  isVerifield: Boolean;
-  status?: string; 
+  status?: string;
+  isVerified?: boolean; 
   createdAt: Date;
 }
 
@@ -36,7 +35,7 @@ const UserSchema = new Schema<IUser>({
   },
   profilePicture: {
     type: String,
-    default: '', // Base64 image string or URL
+    default: '',
   },
   bio: {
     type: String,
@@ -48,11 +47,10 @@ const UserSchema = new Schema<IUser>({
     default: 'Hey there! I am using Chatty',
     maxlength: 100,
   },
-  isVerifield:{
+  isVerified: {
     type: Boolean,
-    default: false,
+    default: false, 
   },
-
   createdAt: {
     type: Date,
     default: Date.now,

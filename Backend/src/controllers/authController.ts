@@ -16,11 +16,9 @@ import {
 import config from "../utils/config";
 import { AuthRequest } from "../middleware/auth";
 
-const pendingRegistrations = new Map<
-  string,
-  RegisterRequest & { hashedPassword: string }
->();
+const pendingRegistrations = new Map<string, RegisterRequest & { hashedPassword: string }>();
 
+// ================= REGISTER =================
 
 export const register = async (
   req: Request,
@@ -35,9 +33,7 @@ export const register = async (
     }
 
     if (username.length < 3) {
-      res
-        .status(400)
-        .json({ success: false, error: "Username must be at least 3 characters" });
+      res.status(400).json({ success: false, error: "Username must be at least 3 characters" });
       return;
     }
 
@@ -47,9 +43,7 @@ export const register = async (
     }
 
     if (password.length < 6) {
-      res
-        .status(400)
-        .json({ success: false, error: "Password must be at least 6 characters" });
+      res.status(400).json({ success: false, error: "Password must be at least 6 characters" });
       return;
     }
 
@@ -74,15 +68,14 @@ export const register = async (
     const sent = await sendOTPEmail(email, otp);
 
     if (!sent) {
-      res
-        .status(500)
-        .json({ success: false, error: "Failed to send OTP email" });
+      res.status(500).json({ success: false, error: "Failed to send OTP email" });
       return;
     }
 
+    console.log(`✅ OTP sent to ${email}: ${otp}`);
     res.json({ success: true, message: `OTP sent to ${email}` });
   } catch (err) {
-    console.error("Register error:", err);
+    console.error("❌ Register error:", err);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
@@ -115,12 +108,15 @@ export const verifyRegistrationOTP = async (
       return;
     }
 
-    // Save user in MongoDB
     const newUser = await UserModel.create({
       username: pending.username,
       email: identifier,
       password: pending.hashedPassword,
       isVerified: true,
+      friends: [],
+      profilePicture: '',
+      bio: '',
+      status: 'Hey there! I am using Chatty',
     });
 
     pendingRegistrations.delete(identifier);
@@ -138,13 +134,15 @@ export const verifyRegistrationOTP = async (
       maxAge: 24 * 60 * 60 * 1000,
     });
 
+    console.log(`✅ User registered: ${newUser.email}`);
+
     res.json({
       success: true,
       message: "Registration successful",
       token,
     });
   } catch (err) {
-    console.error("Verify OTP error:", err);
+    console.error("❌ Verify OTP error:", err);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
@@ -166,9 +164,7 @@ export const resendOTP = async (
     const pending = pendingRegistrations.get(email);
 
     if (!pending) {
-      res
-        .status(400)
-        .json({ success: false, error: "No pending registration found" });
+      res.status(400).json({ success: false, error: "No pending registration found" });
       return;
     }
 
@@ -182,9 +178,10 @@ export const resendOTP = async (
       return;
     }
 
+    console.log(`✅ OTP resent to ${email}: ${otp}`);
     res.json({ success: true, message: "OTP resent successfully" });
   } catch (err) {
-    console.error("Resend OTP error:", err);
+    console.error("❌ Resend OTP error:", err);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
@@ -199,27 +196,21 @@ export const login = async (
     const { email, password }: LoginRequest = req.body;
 
     if (!email || !password) {
-      res
-        .status(400)
-        .json({ success: false, error: "Email and password required" });
+      res.status(400).json({ success: false, error: "Email and password required" });
       return;
     }
 
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      res
-        .status(400)
-        .json({ success: false, error: "Invalid email or password" });
+      res.status(400).json({ success: false, error: "Invalid email or password" });
       return;
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
-      res
-        .status(400)
-        .json({ success: false, error: "Invalid email or password" });
+      res.status(400).json({ success: false, error: "Invalid email or password" });
       return;
     }
 
@@ -236,9 +227,10 @@ export const login = async (
       maxAge: 24 * 60 * 60 * 1000,
     });
 
+    console.log(`✅ User logged in: ${user.email}`);
     res.json({ success: true, message: "Login successful", token });
   } catch (err) {
-    console.error("Login error:", err);
+    console.error("❌ Login error:", err);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
@@ -279,7 +271,50 @@ export const getAllUsers = async (
       users,
     });
   } catch (err) {
-    console.error("Get users error:", err);
+    console.error("❌ Get users error:", err);
     res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+// ================= SEARCH USERS =================
+
+export const searchUsers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { query } = req.query;
+
+    if (!query || typeof query !== 'string') {
+      res.status(400).json({ success: false, error: 'Query parameter required' });
+      return;
+    }
+
+    const users = await UserModel.find({
+      $or: [
+        { username: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+      ],
+    })
+      .limit(20)
+      .select('username email profilePicture bio status');
+
+    const userResults = users.map((user) => ({
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture || '',
+      bio: user.bio || '',
+      status: user.status || '',
+    }));
+
+    console.log(`🔍 Search "${query}" found ${userResults.length} users`);
+
+    res.json({
+      success: true,
+      users: userResults,
+    });
+  } catch (err) {
+    console.error('❌ Search users error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };

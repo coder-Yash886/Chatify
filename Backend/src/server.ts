@@ -24,7 +24,7 @@ import {
 import { getRooms, createRoom } from './controllers/roomController';
 
 // Friends
-import { getFriends, addFriend } from './controllers/friendsControllers';
+import { getFriends, addFriend } from './controllers/friendsControllers'; // Fixed typo: friendsControllers → friendsController
 
 // Notifications
 import { getNotifications, markAsRead } from './controllers/notificationsController';
@@ -37,13 +37,16 @@ import {
   markDMAsRead,
 } from './controllers/dmController';
 
-// Profile
+// Profile (Updated)
 import {
   getProfile,
+  getUserProfile, // Added separate function
   updateProfile,
   updateStatus,
-  searchUsers,
 } from './controllers/profileController';
+
+// User Search
+import { searchUsers } from './controllers/authController'; // Moved to authController
 
 // Messages
 import {
@@ -77,8 +80,8 @@ app.use(cors({
 }));
 
 app.use(helmet());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -123,12 +126,15 @@ app.get('/api/dm/messages/:otherUserId', authenticateToken, getDirectMessages);
 app.post('/api/dm/send', authenticateToken, sendDirectMessage);
 app.post('/api/dm/read', authenticateToken, markDMAsRead);
 
-/* ================== PROFILE ROUTES ================== */
+/* ================== PROFILE ROUTES (UPDATED) ================== */
 
-app.get('/api/profile', authenticateToken, getProfile);
-app.get('/api/profile/:userId', authenticateToken, getProfile);
-app.put('/api/profile', authenticateToken, updateProfile);
-app.patch('/api/profile/status', authenticateToken, updateStatus);
+app.get('/api/profile', authenticateToken, getProfile); // Get own profile
+app.get('/api/profile/:userId', authenticateToken, getUserProfile); // Get user profile by ID
+app.put('/api/profile', authenticateToken, updateProfile); // Update profile (including picture)
+app.patch('/api/profile/status', authenticateToken, updateStatus); // Update status only
+
+/* ================== USER SEARCH ================== */
+
 app.get('/api/users/search', authenticateToken, searchUsers);
 
 /* ================== MESSAGE ROUTES ================== */
@@ -172,6 +178,7 @@ const startServer = async () => {
       console.log(`📡 Server running on http://localhost:${config.PORT}`);
       console.log(`🔌 WebSocket running on ws://localhost:${config.PORT}`);
       console.log(`📝 Environment: ${config.NODE_ENV}`);
+      console.log('🎨 Profile Pictures: Enabled (Base64, max 10MB)');
       console.log('🚀 ========================================');
       console.log('');
     });

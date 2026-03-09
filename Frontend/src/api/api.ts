@@ -35,7 +35,7 @@ export interface AuthResponse {
   token?: string;
 }
 
-// ==================== Auth APIs (FIXED ROUTES) ====================
+// ==================== Auth APIs ====================
 
 export const register = async (data: RegisterRequest): Promise<AuthResponse> => {
   const response = await api.post<AuthResponse>('/api/register', data);
@@ -90,6 +90,9 @@ export interface Friend {
   username: string;
   identifier: string;
   isOnline: boolean;
+  profilePicture?: string; // Added profile picture
+  bio?: string; // Added bio
+  status?: string; // Added status
   lastSeen?: string;
 }
 
@@ -166,35 +169,47 @@ export const markDMAsRead = async (otherUserId: string): Promise<void> => {
   await api.post('/api/dm/read', { otherUserId });
 };
 
-// ==================== Profile APIs ====================
+// ==================== Profile APIs (UPDATED) ====================
 
 export interface UserProfile {
   username: string;
   email: string;
-  avatar?: string;
+  profilePicture?: string; // Changed from avatar to profilePicture
   bio?: string;
-  status: 'online' | 'offline' | 'away' | 'busy';
-  statusMessage?: string;
-  createdAt: string;
-  lastSeen: string;
+  status?: string; // Changed to simple string
+  createdAt?: string;
 }
 
-export const getUserProfile = async (userId?: string): Promise<{ success: boolean; profile: UserProfile }> => {
-  const url = userId ? `/api/profile/${userId}` : '/api/profile';
-  const response = await api.get(url);
+// Get own profile
+export const getProfile = async (): Promise<{ success: boolean; profile: UserProfile }> => {
+  const response = await api.get('/api/profile');
   return response.data;
 };
 
-export const updateUserProfile = async (data: Partial<UserProfile>): Promise<{ success: boolean; profile: UserProfile }> => {
+// Get another user's profile
+export const getUserProfile = async (userId: string): Promise<{ success: boolean; profile: UserProfile }> => {
+  const response = await api.get(`/api/profile/${userId}`);
+  return response.data;
+};
+
+// Update own profile
+export const updateProfile = async (data: {
+  username?: string;
+  bio?: string;
+  status?: string;
+  profilePicture?: string;
+}): Promise<{ success: boolean; profile: UserProfile }> => {
   const response = await api.put('/api/profile', data);
   return response.data;
 };
 
-export const updateUserStatus = async (status: string): Promise<{ success: boolean; status: string }> => {
+// Update status only
+export const updateStatus = async (status: string): Promise<{ success: boolean; status: string }> => {
   const response = await api.patch('/api/profile/status', { status });
   return response.data;
 };
 
+// Search users
 export const searchUsers = async (query: string): Promise<{ success: boolean; users: UserProfile[] }> => {
   const response = await api.get('/api/users/search', { params: { query } });
   return response.data;
