@@ -1,43 +1,15 @@
-// import mongoose from "mongoose";
 
-// const userSchema = new mongoose.Schema(
-//   {
-//     username: {
-//       type: String,
-//       required: true,
-//       minlength: 3,
-//     },
-//     email: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//     },
-//     password: {
-//       type: String,
-//       required: true,
-//     },
-//     isVerified: {
-//       type: Boolean,
-//       default: false,
-//     },
-//   },
-//   {
-//     timestamps: true,
-//   }
-// );
-
-// const UserModel = mongoose.model("User", userSchema);
-
-// export default UserModel;
-
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  isVerified: boolean;
   friends: string[];
+  profilePicture?: string; 
+  bio?: string;
+  isVerifield: Boolean;
+  status?: string; 
   createdAt: Date;
 }
 
@@ -52,23 +24,41 @@ const UserSchema = new Schema<IUser>({
     required: true,
     unique: true,
     lowercase: true,
+    trim: true,
   },
   password: {
     type: String,
     required: true,
   },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
   friends: {
     type: [String],
     default: [],
   },
+  profilePicture: {
+    type: String,
+    default: '', // Base64 image string or URL
+  },
+  bio: {
+    type: String,
+    default: '',
+    maxlength: 200,
+  },
+  status: {
+    type: String,
+    default: 'Hey there! I am using Chatty',
+    maxlength: 100,
+  },
+  isVerifield:{
+    type: Boolean,
+    default: false,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-export default mongoose.model<IUser>('User', UserSchema);
+const UserModel = mongoose.model<IUser>('User', UserSchema);
+
+export default UserModel;
