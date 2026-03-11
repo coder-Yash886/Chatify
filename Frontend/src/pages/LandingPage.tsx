@@ -31,7 +31,7 @@ const LandingPage: React.FC = () => {
               </h1>
             </button>
             
-            <div className="hidden md:flex items-center space-x-12">
+            <div className="hidden md:flex items-center gap-12">
               <button
                 onClick={() => scrollToSection(featuresRef)}
                 className="text-gray-300 hover:text-white transition-colors cursor-pointer font-medium text-base"
@@ -63,7 +63,7 @@ const LandingPage: React.FC = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-8">
+      <section className="pt-32 pb-32 px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-24 items-center">
             {/* Left Content */}
@@ -130,16 +130,16 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* How it Works Section */}
-      <section ref={howItWorksRef} className="py-24 px-8 scroll-mt-24">
+      <section ref={howItWorksRef} className="py-32 px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <div className="inline-block px-6 py-2 bg-purple-600 bg-opacity-20 rounded-full text-purple-300 text-sm font-bold mb-6 border border-purple-500 border-opacity-30">
+          <div className="text-center mb-24">
+            <div className="inline-block px-6 py-2 bg-purple-600 bg-opacity-20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500 border-opacity-30">
               THREE SIMPLE STEPS
             </div>
-            <h2 className="text-5xl font-bold text-white mb-4">Get started in seconds</h2>
+            <h2 className="text-5xl font-bold text-white mb-6">Get started in seconds</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 mb-20">
+          <div className="grid md:grid-cols-3 gap-16 mb-24">
             <div className="text-center space-y-8 group">
               <div className="w-28 h-28 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 group-hover:scale-110 transition-all">
                 <Users className="w-14 h-14 text-white" />
@@ -190,10 +190,10 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6">
+      <section className="py-32 px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl font-bold text-white mb-8">Ready to start chatting?</h2>
-          <p className="text-xl text-gray-300 mb-12">
+          <h2 className="text-5xl font-bold text-white mb-10">Ready to start chatting?</h2>
+          <p className="text-xl text-gray-300 mb-14">
             Join Chatify and enjoy messaging without distractions.
           </p>
           <button
@@ -206,16 +206,16 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} id="features" className="py-24 px-6 scroll-mt-24">
+      <section ref={featuresRef} id="features" className="py-32 px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-white mb-6">Everything you need. Nothing extra.</h2>
+          <div className="text-center mb-24">
+            <h2 className="text-5xl font-bold text-white mb-8">Everything you need. Nothing extra.</h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Powerful features designed to make your conversations smooth and enjoyable
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {[
               {
                 icon: Zap,
@@ -270,14 +270,14 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Contact Section */}
-      <section ref={contactRef} className="py-24 px-6 scroll-mt-24">
+      <section ref={contactRef} className="py-32 px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-white mb-6">Get in Touch</h2>
+          <div className="text-center mb-24">
+            <h2 className="text-5xl font-bold text-white mb-8">Get in Touch</h2>
             <p className="text-xl text-gray-400">Have questions? We'd love to hear from you.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-16">
+          <div className="grid md:grid-cols-2 gap-20">
             {/* Contact Info */}
             <div className="space-y-8">
               <div>
