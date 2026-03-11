@@ -16,12 +16,13 @@ const Sidebar: React.FC = () => {
     try {
       const res = await axios.get("http://localhost:5000/api/friends");
       setFriends(res.data);
-    } catch (error) {
+    } catch {
       console.log("Failed to fetch friends");
     }
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchFriends();
   }, []);
 

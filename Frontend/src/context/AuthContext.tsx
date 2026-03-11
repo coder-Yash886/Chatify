@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { verifyToken, logout as apiLogout } from '../api/api';
 
@@ -33,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           identifier: response.identifier,
         });
       }
-    } catch (error) {
+    } catch {
       console.log('Not authenticated');
       setUser(null);
     } finally {
@@ -49,8 +50,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await apiLogout();
       setUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch (_error) {
+      console.error('Logout error:', _error);
     }
   };
 

@@ -230,7 +230,7 @@ const handleSendMessage = (ws: AuthenticatedWebSocket, payload: { text: string }
 };
 
 // NEW: Handle Direct Messages
-const handleDirectMessage = (ws: AuthenticatedWebSocket, message: any, wss: WebSocketServer): void => {
+const handleDirectMessage = (ws: AuthenticatedWebSocket, message: any, _wss: WebSocketServer): void => {
   if (!ws.identifier) {
     sendError(ws, 'Not authenticated');
     return;
@@ -290,7 +290,7 @@ const handleDirectMessage = (ws: AuthenticatedWebSocket, message: any, wss: WebS
 };
 
 // NEW: Handle DM Typing Indicator
-const handleDMTyping = (ws: AuthenticatedWebSocket, message: any, wss: WebSocketServer): void => {
+const handleDMTyping = (ws: AuthenticatedWebSocket, message: any, _wss: WebSocketServer): void => {
   if (!ws.identifier) return;
 
   const { to, isTyping } = message;

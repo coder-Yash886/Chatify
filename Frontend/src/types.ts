@@ -40,7 +40,7 @@ export interface Message {
   timestamp: string;
 }
 
-export interface WebSocketMessage<T = any> {
+export interface WebSocketMessage<T = unknown> {
   type: string;
   payload?: T;
   timestamp?: string;

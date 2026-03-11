@@ -4,7 +4,7 @@ export class WebSocketService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 3000;
-  private messageHandlers: Map<string, (payload: any) => void> = new Map();
+  private messageHandlers: Map<string, (payload: unknown) => void> = new Map();
 
   constructor(url: string) {
     this.url = url;
@@ -45,7 +45,7 @@ export class WebSocketService {
     });
   }
 
-  send(type: string, payload?: any): void {
+  send(type: string, payload?: unknown): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       const message = {
         type,
@@ -58,7 +58,7 @@ export class WebSocketService {
     }
   }
 
-  on(type: string, handler: (payload: any) => void): void {
+  on(type: string, handler: (payload: unknown) => void): void {
     this.messageHandlers.set(type, handler);
   }
 
@@ -66,10 +66,14 @@ export class WebSocketService {
     this.messageHandlers.delete(type);
   }
 
-  private handleMessage(message: any): void {
-    const handler = this.messageHandlers.get(message.type);
+  private handleMessage(message: unknown): void {
+    if (!message || typeof message !== 'object' || !('type' in message)) return;
+    const msg = message as { type?: unknown; payload?: unknown };
+    if (typeof msg.type !== 'string') return;
+
+    const handler = this.messageHandlers.get(msg.type);
     if (handler) {
-      handler(message.payload);
+      handler(msg.payload);
     }
   }
 

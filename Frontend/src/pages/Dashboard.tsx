@@ -8,9 +8,7 @@ import {
   MessageSquare,
   Users,
   Settings,
-  UserPlus,
-  Star,
-  CheckCircle
+  Star
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import DMChat from '../components/DMChat';

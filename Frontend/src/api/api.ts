@@ -79,8 +79,14 @@ export const getRooms = async (): Promise<{ success: boolean; rooms: Room[] }> =
   return response.data;
 };
 
-export const createRoom = async (roomId: string, roomName: string): Promise<any> => {
-  const response = await api.post('/api/rooms', { roomId, roomName });
+export const createRoom = async (
+  roomId: string,
+  roomName: string,
+): Promise<{ success: boolean; message?: string; room?: Room; error?: string }> => {
+  const response = await api.post<{ success: boolean; message?: string; room?: Room; error?: string }>('/api/rooms', {
+    roomId,
+    roomName,
+  });
   return response.data;
 };
 
@@ -103,6 +109,24 @@ export const getFriends = async (): Promise<{ success: boolean; friends: Friend[
 
 export const addFriend = async (email: string): Promise<AuthResponse> => {
   const response = await api.post('/api/friends/add', { friendEmail: email });
+  return response.data;
+};
+
+// ==================== Block APIs ====================
+
+export interface BlockedUser {
+  username: string;
+  email: string;
+  profilePicture?: string;
+}
+
+export const getBlockedUsers = async (): Promise<{ success: boolean; blockedUsers: BlockedUser[] }> => {
+  const response = await api.get('/api/blocked');
+  return response.data;
+};
+
+export const unblockUser = async (email: string): Promise<{ success: boolean; message?: string }> => {
+  const response = await api.post('/api/unblock', { email });
   return response.data;
 };
 

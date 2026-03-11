@@ -33,6 +33,17 @@ import { format } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
 import SettingsModal from '../components/SettingsModal';
 import AddFriendModal from '../components/AddFriendModal';
+
+type IncomingDM = {
+  from: string;
+  fromUsername?: string;
+  to: string;
+  text: string;
+  messageId?: string;
+  timestamp: string;
+};
+
+type StatusChange = { userId: string; isOnline: boolean };
 import EmojiPicker from '../components/EmojiPicker';
 
 const ChatApp: React.FC = () => {
@@ -76,29 +87,30 @@ const ChatApp: React.FC = () => {
   }, [selectedChat]);
 
   useEffect(() => {
-    const handleNewMessage = (data: any) => {
+    const handleNewMessage = (data: unknown) => {
+      const dm = data as IncomingDM;
       console.log('📩 Received new DM:', data);
-      if (!selectedChat || data.from !== selectedChat.identifier) {
+      if (!selectedChat || dm.from !== selectedChat.identifier) {
         notificationSound.current?.play().catch(err => console.log('Sound error:', err));
         if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification(`💬 ${data.fromUsername}`, {
-            body: data.text,
+          new Notification(`💬 ${dm.fromUsername || dm.from}`, {
+            body: dm.text,
             icon: '/favicon.ico',
           });
         }
       }
-      if (selectedChat && data.from === selectedChat.identifier) {
+      if (selectedChat && dm.from === selectedChat.identifier) {
         setMessages(prev => [...prev, {
-          id: data.messageId || Date.now().toString(),
-          from: data.from,
-          to: data.to,
-          text: data.text,
-          timestamp: data.timestamp,
+          id: dm.messageId || Date.now().toString(),
+          from: dm.from,
+          to: dm.to,
+          text: dm.text,
+          timestamp: dm.timestamp,
           isRead: false,
           type: 'text',
         }]);
         scrollToBottom();
-        markDMAsRead(data.from).catch(err => console.error('Failed to mark as read:', err));
+        markDMAsRead(dm.from).catch(err => console.error('Failed to mark as read:', err));
       }
       loadFriends();
     };
@@ -106,11 +118,12 @@ const ChatApp: React.FC = () => {
   }, [selectedChat]);
 
   useEffect(() => {
-    const handleStatusChange = (data: any) => {
-      console.log(`👥 Status update: ${data.userId} is ${data.isOnline ? 'online' : 'offline'}`);
+    const handleStatusChange = (data: unknown) => {
+      const status = data as StatusChange;
+      console.log(`👥 Status update: ${status.userId} is ${status.isOnline ? 'online' : 'offline'}`);
       setFriends(prev => prev.map(f => 
-        f.identifier === data.userId 
-          ? { ...f, isOnline: data.isOnline }
+        f.identifier === status.userId 
+          ? { ...f, isOnline: status.isOnline }
           : f
       ));
     };

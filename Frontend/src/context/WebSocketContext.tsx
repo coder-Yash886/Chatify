@@ -1,11 +1,12 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAuth } from './AuthContext';
 
 interface WebSocketContextType {
   isConnected: boolean;
   sendDirectMessage: (to: string, text: string, messageId: string) => void;
-  onNewDirectMessage: (callback: (data: any) => void) => void;
-  onStatusChange: (callback: (data: any) => void) => void;
+  onNewDirectMessage: (callback: (data: unknown) => void) => void;
+  onStatusChange: (callback: (data: unknown) => void) => void;
   reconnect: () => void;
 }
 
@@ -15,8 +16,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
-  const newMessageCallbacks = useRef<((data: any) => void)[]>([]);
-  const statusChangeCallbacks = useRef<((data: any) => void)[]>([]);
+  const newMessageCallbacks = useRef<((data: unknown) => void)[]>([]);
+  const statusChangeCallbacks = useRef<((data: unknown) => void)[]>([]);
   const reconnectTimeoutRef = useRef<number | null>(null);
 
   const connect = () => {
@@ -53,36 +54,50 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     ws.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data);
+        const data: unknown = JSON.parse(event.data);
         console.log('📨 WS Message:', data);
 
-        switch (data.type) {
+        if (!data || typeof data !== 'object' || !('type' in data)) return;
+        const msg = data as { type?: unknown; payload?: unknown; userId?: unknown; isOnline?: unknown };
+        if (typeof msg.type !== 'string') return;
+
+        switch (msg.type) {
           case 'auth-success':
             setIsConnected(true);
-            console.log('✅ WebSocket authenticated:', data.payload?.username);
+            if (msg.payload && typeof msg.payload === 'object' && 'username' in msg.payload) {
+              console.log('✅ WebSocket authenticated:', (msg.payload as { username?: unknown }).username);
+            } else {
+              console.log('✅ WebSocket authenticated');
+            }
             break;
 
           case 'auth-error':
-            console.error('❌ WebSocket auth failed:', data.payload?.error);
+            if (msg.payload && typeof msg.payload === 'object' && 'error' in msg.payload) {
+              console.error('❌ WebSocket auth failed:', (msg.payload as { error?: unknown }).error);
+            } else {
+              console.error('❌ WebSocket auth failed');
+            }
             setIsConnected(false);
             break;
 
           case 'new-dm':
-            console.log('💬 New DM received:', data.payload);
-            newMessageCallbacks.current.forEach(cb => cb(data.payload));
+            console.log('💬 New DM received:', msg.payload);
+            newMessageCallbacks.current.forEach(cb => cb(msg.payload));
             break;
 
           case 'status-change':
-            console.log(`👤 Status change: ${data.userId} is ${data.isOnline ? 'online' : 'offline'}`);
-            statusChangeCallbacks.current.forEach(cb => cb(data));
+            console.log(
+              `👤 Status change: ${String(msg.userId)} is ${msg.isOnline ? 'online' : 'offline'}`,
+            );
+            statusChangeCallbacks.current.forEach(cb => cb(msg));
             break;
 
           case 'dm-delivered':
-            console.log('✅ Message delivered:', data.payload);
+            console.log('✅ Message delivered:', msg.payload);
             break;
 
           default:
-            console.log('ℹ️ Unknown WS message type:', data.type);
+            console.log('ℹ️ Unknown WS message type:', msg.type);
         }
       } catch (error) {
         console.error('❌ WebSocket message parse error:', error);
@@ -116,6 +131,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         wsRef.current.close();
         wsRef.current = null;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsConnected(false);
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
@@ -148,11 +164,11 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const onNewDirectMessage = (callback: (data: any) => void) => {
+  const onNewDirectMessage = (callback: (data: unknown) => void) => {
     newMessageCallbacks.current.push(callback);
   };
 
-  const onStatusChange = (callback: (data: any) => void) => {
+  const onStatusChange = (callback: (data: unknown) => void) => {
     statusChangeCallbacks.current.push(callback);
   };
 

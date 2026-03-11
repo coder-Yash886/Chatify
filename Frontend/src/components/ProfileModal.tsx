@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Camera, Save, User as UserIcon } from 'lucide-react';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { getProfile, updateProfile } from '../api/api';
 import { useTheme } from '../context/ThemeContext';
@@ -40,7 +41,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         setStatus(response.profile.status || '');
         setProfilePicture(response.profile.profilePicture || '');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load profile:', err);
       setError('Failed to load profile');
     } finally {
@@ -106,9 +107,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
           window.location.reload(); // Reload to show new picture
         }, 1500);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('❌ Update profile error:', err);
-      setError(err.response?.data?.error || 'Failed to update profile');
+      const message = axios.isAxiosError<{ error?: string }>(err)
+        ? err.response?.data?.error || err.message
+        : err instanceof Error
+          ? err.message
+          : 'Failed to update profile';
+      setError(message);
     } finally {
       setSaving(false);
     }

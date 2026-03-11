@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { X, Search, UserPlus } from 'lucide-react';
 import { searchUsers, addFriend, type UserProfile } from '../api/api';
 
@@ -41,9 +42,14 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ isOpen, onClose, onFrie
       setSearchResults([]);
       onFriendAdded();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to add friend:', error);
-      alert(error.response?.data?.error || 'Failed to add friend');
+      const message = axios.isAxiosError<{ error?: string }>(error)
+        ? error.response?.data?.error || error.message
+        : error instanceof Error
+          ? error.message
+          : 'Failed to add friend';
+      alert(message);
     } finally {
       setAdding(null);
     }

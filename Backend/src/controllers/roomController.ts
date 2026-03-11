@@ -8,7 +8,7 @@ rooms.set('general', { name: 'General', users: new Set(), messages: [] });
 rooms.set('random', { name: 'Random', users: new Set(), messages: [] });
 rooms.set('tech', { name: 'Tech Talk', users: new Set(), messages: [] });
 
-export const getRooms = (req: AuthRequest, res: Response): void => {
+export const getRooms = (_req: AuthRequest, res: Response): void => {
   const roomList: RoomInfo[] = Array.from(rooms.entries()).map(([id, room]) => ({
     id,
     name: room.name,

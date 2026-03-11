@@ -24,7 +24,7 @@ import {
   type Friend, 
   type DirectMessage
 } from '../api/api';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import ProfileModal from '../components/ProfileModal';
 import SettingsModal from '../components/SettingsModal';
 import AddFriendModal from '../components/AddFriendModal';
@@ -42,7 +42,7 @@ const ChatApp: React.FC = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [onlineFilter, setOnlineFilter] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [sending, setSending] = useState(false);
 
   // Load friends every 5 seconds

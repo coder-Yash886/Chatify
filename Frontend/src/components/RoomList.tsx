@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Users, Hash } from 'lucide-react';
 import { getRooms } from '../api/api';
-import { useWebSocket } from '../context/WebSocketContext';
 
 interface Room {
   id: string;
@@ -12,7 +11,7 @@ interface Room {
 const RoomList: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currentRoom, joinRoom } = useWebSocket();
+  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
 
   useEffect(() => {
     loadRooms();
@@ -42,7 +41,7 @@ const RoomList: React.FC = () => {
       {rooms.map((room) => (
         <button
           key={room.id}
-          onClick={() => joinRoom(room.id)}
+          onClick={() => setCurrentRoom(room.id)}
           className={`
             w-full flex items-center justify-between p-3 rounded-lg
             transition-all duration-200

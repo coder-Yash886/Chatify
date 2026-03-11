@@ -34,7 +34,7 @@ const BlockedUsersModal: React.FC<BlockedUsersModalProps> = ({ isOpen, onClose }
       if (response.success) {
         setBlockedUsers(response.blockedUsers);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load blocked users:', err);
       setError('Failed to load blocked users');
     } finally {
@@ -46,7 +46,7 @@ const BlockedUsersModal: React.FC<BlockedUsersModalProps> = ({ isOpen, onClose }
     try {
       await unblockUser(userEmail);
       setBlockedUsers(blockedUsers.filter(u => u.email !== userEmail));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to unblock user:', err);
       setError('Failed to unblock user');
     }

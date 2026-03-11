@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MessageCircle, User } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { getConversations, type Conversation } from '../api/api';
 import { formatDistanceToNow } from 'date-fns';
 
