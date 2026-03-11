@@ -12,7 +12,14 @@ const LandingPage: React.FC = () => {
 
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     if (ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const navbarHeight = 80;
+      const elementPosition = ref.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -62,8 +69,8 @@ const LandingPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-32 px-8">
+      {/* Hero Section - HUGE TOP PADDING */}
+      <section className="pt-40 pb-40 px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-24 items-center">
             {/* Left Content */}
@@ -129,17 +136,17 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* How it Works Section */}
-      <section ref={howItWorksRef} className="py-32 px-8 scroll-mt-24">
+      {/* How it Works Section - HUGE PADDING */}
+      <section ref={howItWorksRef} className="py-40 px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
+          <div className="text-center mb-28">
             <div className="inline-block px-6 py-2 bg-purple-600 bg-opacity-20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500 border-opacity-30">
               THREE SIMPLE STEPS
             </div>
             <h2 className="text-5xl font-bold text-white mb-6">Get started in seconds</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-16 mb-24">
+          <div className="grid md:grid-cols-3 gap-20 mb-28">
             <div className="text-center space-y-8 group">
               <div className="w-28 h-28 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 group-hover:scale-110 transition-all">
                 <Users className="w-14 h-14 text-white" />
@@ -165,8 +172,8 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Stats Cards - NOW AFTER STEPS */}
-          <div className="grid grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {/* Stats Cards - WELL SEPARATED */}
+          <div className="grid grid-cols-3 gap-8 max-w-4xl mx-auto pt-10">
             <div className="bg-white bg-opacity-5 backdrop-blur-lg rounded-2xl p-6 border border-white border-opacity-10 text-center">
               <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 100K+
@@ -189,8 +196,8 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 px-8">
+      {/* CTA Section - HUGE PADDING */}
+      <section className="py-40 px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-5xl font-bold text-white mb-10">Ready to start chatting?</h2>
           <p className="text-xl text-gray-300 mb-14">
@@ -205,10 +212,10 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section ref={featuresRef} id="features" className="py-32 px-8 scroll-mt-24">
+      {/* Features Section - HUGE PADDING */}
+      <section ref={featuresRef} id="features" className="py-40 px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
+          <div className="text-center mb-28">
             <h2 className="text-5xl font-bold text-white mb-8">Everything you need. Nothing extra.</h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Powerful features designed to make your conversations smooth and enjoyable
@@ -269,10 +276,10 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section ref={contactRef} className="py-32 px-8 scroll-mt-24">
+      {/* Contact Section - HUGE PADDING */}
+      <section ref={contactRef} className="py-40 px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
+          <div className="text-center mb-28">
             <h2 className="text-5xl font-bold text-white mb-8">Get in Touch</h2>
             <p className="text-xl text-gray-400">Have questions? We'd love to hear from you.</p>
           </div>
@@ -362,7 +369,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white border-opacity-10">
+      <footer className="py-16 px-8 border-t border-slate-700">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-3">
