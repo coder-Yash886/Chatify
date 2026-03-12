@@ -356,12 +356,12 @@ const LandingPage: React.FC = () => {
 
       {/* HOW IT WORKS SECTION */}
       <section id="how-it-works" className="py-24 px-8 min-h-screen"
-      style={{paddingLeft:"70px"}}
+      style={{marginLeft:"70px"}}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <div className="inline-block px-6 py-2 bg-purple-600/20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500/30 backdrop-blur-sm"
-            style={{paddingBottom:"5px"}}
+            style={{marginTop:"30px"}}
             >
               THREE SIMPLE STEPS
             </div>
@@ -373,7 +373,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-12 mb-16"
-          style={{marginTop:"40px"}}
+          style={{marginTop:"40px", marginRight:"30px"}}
           >
             {[
               {
@@ -420,8 +420,8 @@ const LandingPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="text-center bg-purple-500/5 border border-purple-500/20 rounded-3xl p-12 backdrop-blur-sm"
-          style={{marginTop:"50px"}}
+          <div className="text-center bg-purple-500/5 border border-purple-500/20 rounded-3xl p-5 backdrop-blur-sm"
+          style={{marginTop:"40px",marginRight:"50px"}}
           >
             <h3 className="text-4xl font-bold text-white mb-6"
             
@@ -436,7 +436,7 @@ const LandingPage: React.FC = () => {
             <button
               onClick={() => navigate("/auth")}
               className="group px-12 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 inline-flex items-center gap-3"
-              style={{padding:"9px"}}
+              style={{padding:"5px"}}
             >
               Create Free Account
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
