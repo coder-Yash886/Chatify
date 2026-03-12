@@ -136,7 +136,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Left - Text Content */}
-            <div className="space-y-10">
+            <div className="space-y-6">
               {/* HEADING */}
 
               <div className="space-y-3 md:space-y-4">
@@ -152,13 +152,17 @@ const LandingPage: React.FC = () => {
                   Just people.
                 </h1>
               </div>
-
-              <p className="text-xl text-gray-300 leading-relaxed max-w-xl">
+               
+              <p className="mt-10 text-lg sm:text-xl text-gray-300 leading-relaxed max-w-xl"
+              style={{marginTop:"40px"}}
+              >
                 Chatify helps you stay connected without distractions. Clean
                 conversations, smooth experience, and privacy by default.
               </p>
 
-              <div className="flex flex-wrap gap-5 pt-2">
+              <div className="flex flex-wrap gap-5"
+              style={{marginTop:"38px"}}
+              >
                 <button
                   onClick={() => navigate("/auth")}
                   className="group px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center gap-2"
@@ -171,7 +175,9 @@ const LandingPage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-5 pt-6">
+              <div className="grid grid-cols-3 gap-5"
+              style={{marginTop:"40px"}}
+              >
                 {[
                   { value: "100K+", label: "Active Users" },
                   { value: "5M+", label: "Messages" },
@@ -239,9 +245,14 @@ const LandingPage: React.FC = () => {
                   </div>
 
                   {/* Message 3 */}
-                  <div className="flex justify-start">
-                    <div className="max-w-[280px] bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-5 py-3.5 flex items-center gap-2 shadow-xl">
-                      <p className="text-white text-base leading-relaxed">
+                  <div className="flex justify-start"
+                  >
+                    <div className="max-w-[280px] bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-5 py-3.5 flex items-center gap-2 shadow-xl"
+                     
+                    >
+                      <p className="text-white text-base leading-relaxed"
+                      
+                      >
                         Finally something simple
                       </p>
                       <span className="text-lg">😊</span>
@@ -255,26 +266,34 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* FEATURES SECTION */}
-      <section id="features" className="py-24 px-8 min-h-screen">
+      <section id="features" className="py-24 px-8 min-h-screen"
+       
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6"
+             style={{marginTop:"5px"}}
+            >
               Everything you need. Nothing extra.
             </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto"
+             style={{marginTop:"15px"}}
+            >
               Powerful features designed to make your conversations smooth and
               enjoyable
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 justify-center"
+           style={{marginTop:"50px"}}
+          >
             {[
               {
                 icon: Zap,
                 title: "Instant Messaging",
                 description:
                   "Send and receive messages instantly, without waiting or refreshing.",
-                gradient: "from-purple-500 to-purple-600",
+                gradient: "from-purple-600 to-purple-600",
               },
               {
                 icon: MessageSquare,
@@ -314,12 +333,12 @@ const LandingPage: React.FC = () => {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="group p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+                className="group p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 backdrop-blur-sm flex flex-col"
               >
                 <div
-                  className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl`}
+                  className={`w-16 h-16 min-w-[64px] bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl`}
                 >
-                  <feature.icon className="w-8 h-8 text-white" />
+                  <feature.icon className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">
                   {feature.title}
@@ -337,15 +356,21 @@ const LandingPage: React.FC = () => {
       <section id="how-it-works" className="py-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <div className="inline-block px-6 py-2 bg-purple-600/20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500/30 backdrop-blur-sm">
+            <div className="inline-block px-6 py-2 bg-purple-600/20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500/30 backdrop-blur-sm"
+            style={{paddingBottom:"5px"}}
+            >
               THREE SIMPLE STEPS
             </div>
-            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6"
+            style={{marginTop:"20px"}}
+            >
               Get started in seconds
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 mb-16">
+          <div className="grid md:grid-cols-3 gap-12 mb-16"
+          style={{marginTop:"40px"}}
+          >
             {[
               {
                 icon: Users,
@@ -391,16 +416,23 @@ const LandingPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="text-center bg-purple-500/5 border border-purple-500/20 rounded-3xl p-12 backdrop-blur-sm">
-            <h3 className="text-4xl font-bold text-white mb-6">
+          <div className="text-center bg-purple-500/5 border border-purple-500/20 rounded-3xl p-12 backdrop-blur-sm"
+          style={{marginTop:"50px"}}
+          >
+            <h3 className="text-4xl font-bold text-white mb-6"
+            style={{padding:"9px"}}
+            >
               Ready to start chatting?
             </h3>
-            <p className="text-xl text-gray-300 mb-8">
+            <p className="text-xl text-gray-300 mb-8"
+            style={{padding:"7px"}}
+            >
               Join Chatify and enjoy messaging without distractions.
             </p>
             <button
               onClick={() => navigate("/auth")}
               className="group px-12 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 inline-flex items-center gap-3"
+              style={{padding:"9px"}}
             >
               Create Free Account
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
@@ -413,17 +445,23 @@ const LandingPage: React.FC = () => {
       <section id="contact" className="py-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6"
+            style={{marginTop:"20px"}}
+            >
               Get in Touch
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="text-xl text-gray-400"
+             style={{marginTop:"20px"}}
+            >
               Have questions? We'd love to hear from you.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
             <div className="space-y-6">
-              <h3 className="text-3xl font-bold text-white mb-8">
+              <h3 className="text-3xl font-bold text-white mb-8"
+               style={{marginTop:"20px"}}
+              >
                 Contact Information
               </h3>
               {[
@@ -449,6 +487,7 @@ const LandingPage: React.FC = () => {
                 <div
                   key={index}
                   className="flex items-start gap-6 p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 group backdrop-blur-sm"
+                   style={{marginTop:"20px"}}
                 >
                   <div
                     className={`w-14 h-14 bg-gradient-to-br ${contact.gradient} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-xl`}
@@ -470,7 +509,9 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div>
-              <form className="space-y-6 p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 backdrop-blur-sm">
+              <form className="space-y-6 p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 backdrop-blur-sm"
+               style={{marginTop:"80px"}}
+              >
                 <div>
                   <label className="block text-white font-semibold mb-2">
                     Name
@@ -507,6 +548,7 @@ const LandingPage: React.FC = () => {
                 <button
                   type="submit"
                   className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center justify-center gap-2 group"
+                   style={{marginTop:"20px", padding:"5px"}}
                 >
                   Send Message
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
@@ -521,13 +563,24 @@ const LandingPage: React.FC = () => {
       <footer className="py-12 px-8 border-t border-purple-500/10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3"
+             style={{paddingLeft:"60px"}}
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center"
+               
+              >
+                <MessageCircle className="w-5 h-5 text-white"
+                
+                 />
               </div>
-              <span className="font-semibold text-white">© 2026 Chatify</span>
+              <span className="font-semibold text-white"
+               style={{paddingLeft:"20px"}}
+              >
+                © 2026 Chatify</span>
             </div>
-            <div className="flex gap-8 text-sm text-gray-400">
+            <div className="flex gap-8 text-sm text-gray-400"
+             style={{paddingRight:"20px"}}
+            >
               <a href="#" className="hover:text-purple-400 transition-colors">
                 Privacy Policy
               </a>
@@ -538,7 +591,7 @@ const LandingPage: React.FC = () => {
                 onClick={() => scrollToSection("contact")}
                 className="hover:text-purple-400 transition-colors"
               >
-                Contact Us
+              Contact Us
               </button>
             </div>
           </div>
