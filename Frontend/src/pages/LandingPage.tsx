@@ -79,14 +79,14 @@ const LandingPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* HOME SECTION - PROPER SPACING FROM NAVBAR */}
+      {/* HOME SECTION */}
       <section id="home" className="pt-44 pb-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             
             {/* Left - Text Content */}
             <div className="space-y-10">
-              {/* HEADING - PROPER LINE HEIGHT */}
+              {/* HEADING */}
               <div className="space-y-4">
                 <h1 className="text-7xl lg:text-8xl font-extrabold text-white" style={{ lineHeight: '1.1' }}>
                   Chat instantly.
@@ -129,33 +129,43 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right - Chat Mockup */}
-            <div className="relative lg:block hidden">
-              <div className="rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden backdrop-blur-xl" style={{ 
-                background: 'linear-gradient(135deg, rgba(59, 47, 143, 0.15) 0%, rgba(42, 31, 95, 0.15) 100%)'
+            {/* Right - Chat Mockup - PERFECTLY FIXED */}
+            <div className="relative">
+              <div className="rounded-3xl shadow-2xl border border-purple-500/30 overflow-hidden backdrop-blur-xl max-w-md mx-auto" style={{ 
+                background: 'linear-gradient(135deg, rgba(59, 47, 143, 0.25) 0%, rgba(42, 31, 95, 0.25) 100%)'
               }}>
-                <div className="px-6 py-4 flex items-center gap-2 border-b border-purple-500/20" style={{ 
-                  background: 'rgba(13, 5, 32, 0.4)'
+                {/* Chat Header */}
+                <div className="px-6 py-4 flex items-center gap-3 border-b border-purple-500/30" style={{ 
+                  background: 'rgba(13, 5, 32, 0.6)'
                 }}>
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
                 </div>
-                <div className="p-10 space-y-5">
+                
+                {/* Chat Messages */}
+                <div className="p-8 space-y-6">
+                  {/* Message 1 */}
                   <div className="flex justify-start">
-                    <div className="max-w-xs bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-6 py-4 shadow-lg">
-                      <p className="text-white text-sm">Did you try the new chat app?</p>
+                    <div className="max-w-[280px] bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-5 py-3.5 shadow-xl">
+                      <p className="text-white text-base leading-relaxed">Did you try the new chat app?</p>
                     </div>
                   </div>
+                  
+                  {/* Message 2 */}
                   <div className="flex justify-end">
-                    <div className="max-w-xs rounded-2xl rounded-tr-sm px-6 py-4 shadow-lg" style={{ backgroundColor: 'rgba(59, 47, 143, 0.4)' }}>
-                      <p className="text-white text-sm">Yeah, it's clean and super smooth.</p>
+                    <div className="max-w-[280px] rounded-2xl rounded-tr-sm px-5 py-3.5 shadow-xl" style={{ backgroundColor: 'rgba(59, 47, 143, 0.6)' }}>
+                      <p className="text-white text-base leading-relaxed">Yeah, it's clean and super smooth.</p>
                     </div>
                   </div>
+                  
+                  {/* Message 3 */}
                   <div className="flex justify-start">
-                    <div className="max-w-xs bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-6 py-4 flex items-center gap-2 shadow-lg">
-                      <p className="text-white text-sm">Finally something simple</p>
-                      <span className="text-base">😊</span>
+                    <div className="max-w-[280px] bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-5 py-3.5 flex items-center gap-2 shadow-xl">
+                      <p className="text-white text-base leading-relaxed">Finally something simple</p>
+                      <span className="text-lg">😊</span>
                     </div>
                   </div>
                 </div>
