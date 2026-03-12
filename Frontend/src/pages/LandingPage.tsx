@@ -130,11 +130,11 @@ const LandingPage: React.FC = () => {
       {/* HOME SECTION */}
       <section
         id="home"
-        className="pb-24 px-6 md:px-8 min-h-screen"
-        style={{ paddingTop: "110px" }}
+        className="pb-24 px-6 md:px-8 min-h-[100vh]"
+        style={{ paddingTop: "70px" }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Left - Text Content */}
             <div className="space-y-10">
               {/* HEADING */}
@@ -148,7 +148,7 @@ const LandingPage: React.FC = () => {
                   No noise.
                 </h1>
 
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-white leading-[1.1]">
+                <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold text-white leading-[1.1]">
                   Just people.
                 </h1>
               </div>
