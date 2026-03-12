@@ -178,7 +178,7 @@ const LandingPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-5"
-              style={{marginTop:"40px"}}
+              style={{marginTop:"40px", marginRight:"20px"}}
               >
                 {[
                   { value: "100K+", label: "Active Users" },
@@ -269,7 +269,7 @@ const LandingPage: React.FC = () => {
 
       {/* FEATURES SECTION */}
       <section id="features" className="py-24 px-8 min-h-screen"
-       
+       style={{marginLeft:"90px", marginRight:"50px", marginTop:"10px"}}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
@@ -279,14 +279,14 @@ const LandingPage: React.FC = () => {
               Everything you need. Nothing extra.
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto"
-             style={{marginTop:"15px"}}
+             style={{marginTop:"25px", marginLeft:"60px"}}
             >
               Powerful features designed to make your conversations smooth and
               enjoyable
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3"
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-15"
            style={{marginTop:"40px"}}
           >
             {[
