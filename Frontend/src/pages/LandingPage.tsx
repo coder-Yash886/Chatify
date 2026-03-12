@@ -284,8 +284,8 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 justify-center"
-           style={{marginTop:"50px"}}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3"
+           style={{marginTop:"40px"}}
           >
             {[
               {
@@ -353,7 +353,9 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* HOW IT WORKS SECTION */}
-      <section id="how-it-works" className="py-24 px-8 min-h-screen">
+      <section id="how-it-works" className="py-24 px-8 min-h-screen"
+      style={{paddingLeft:"70px"}}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <div className="inline-block px-6 py-2 bg-purple-600/20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500/30 backdrop-blur-sm"
@@ -420,7 +422,7 @@ const LandingPage: React.FC = () => {
           style={{marginTop:"50px"}}
           >
             <h3 className="text-4xl font-bold text-white mb-6"
-            style={{padding:"9px"}}
+            
             >
               Ready to start chatting?
             </h3>
