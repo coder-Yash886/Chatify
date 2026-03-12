@@ -91,12 +91,14 @@ const LandingPage: React.FC = () => {
               <button
                 onClick={() => navigate("/auth")}
                 className="px-7 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300"
+                style={{marginRight:"30px"}}
               >
                 Login
               </button>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden text-white p-2 hover:bg-purple-600/20 rounded-lg transition-all"
+                style={{marginRight:"20px"}}
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -131,7 +133,7 @@ const LandingPage: React.FC = () => {
       <section
         id="home"
         className="pb-24 px-6 md:px-8 min-h-[100vh]"
-        style={{ paddingTop: "70px" }}
+        style={{ paddingTop: "70px", paddingLeft:"40px"}}
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
