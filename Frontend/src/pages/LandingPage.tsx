@@ -27,7 +27,7 @@ const LandingPage: React.FC = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-purple-500/10" style={{ 
         background: 'linear-gradient(to bottom, rgba(13, 5, 32, 0.95) 0%, rgba(13, 5, 32, 0.85) 100%)'
       }}>
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-8 py-5">
           <div className="flex items-center justify-between">
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center space-x-3 group cursor-pointer">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-500/50 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
@@ -38,7 +38,7 @@ const LandingPage: React.FC = () => {
               </h1>
             </button>
             
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-10">
               <button onClick={() => scrollToSection('features')} className="relative text-base font-medium text-gray-300 hover:text-white hover:scale-105 transition-all duration-300 group">
                 Features
                 <span className="absolute -bottom-1 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300"></span>
@@ -54,7 +54,7 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/auth')} className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300">
+              <button onClick={() => navigate('/auth')} className="px-7 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 transition-all duration-300">
                 Login
               </button>
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-white p-2 hover:bg-purple-600/20 rounded-lg transition-all">
@@ -79,83 +79,81 @@ const LandingPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* HOME SECTION */}
-      <section id="home" className="pt-32 pb-20 px-6 min-h-screen">
+      {/* HOME SECTION - PROPER SPACING FROM NAVBAR */}
+      <section id="home" className="pt-44 pb-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
             
             {/* Left - Text Content */}
-            <div className="space-y-8">
-              <div className="space-y-6">
-                {/* CLEAN HEADING */}
-                <div className="space-y-2">
-                  <h1 className="text-6xl lg:text-7xl font-extrabold text-white leading-tight">
-                    Chat instantly.
-                  </h1>
-                  <h1 className="text-6xl lg:text-7xl font-extrabold leading-tight bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    No noise.
-                  </h1>
-                  <h1 className="text-6xl lg:text-7xl font-extrabold text-white leading-tight">
-                    Just people.
-                  </h1>
-                </div>
-                
-                <p className="text-lg text-gray-300 leading-relaxed max-w-xl pt-4">
-                  Chatify helps you stay connected without distractions. Clean conversations, smooth experience, and privacy by default.
-                </p>
+            <div className="space-y-10">
+              {/* HEADING - PROPER LINE HEIGHT */}
+              <div className="space-y-4">
+                <h1 className="text-7xl lg:text-8xl font-extrabold text-white" style={{ lineHeight: '1.1' }}>
+                  Chat instantly.
+                </h1>
+                <h1 className="text-7xl lg:text-8xl font-extrabold bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" style={{ lineHeight: '1.1' }}>
+                  No noise.
+                </h1>
+                <h1 className="text-7xl lg:text-8xl font-extrabold text-white" style={{ lineHeight: '1.1' }}>
+                  Just people.
+                </h1>
               </div>
+              
+              <p className="text-xl text-gray-300 leading-relaxed max-w-xl">
+                Chatify helps you stay connected without distractions. Clean conversations, smooth experience, and privacy by default.
+              </p>
 
-              <div className="flex flex-wrap gap-4">
-                <button onClick={() => navigate('/auth')} className="group px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center gap-2">
+              <div className="flex flex-wrap gap-5 pt-2">
+                <button onClick={() => navigate('/auth')} className="group px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center gap-2">
                   Get Started
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="px-10 py-4 rounded-xl border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 hover:scale-105 font-bold text-lg transition-all duration-300">
+                <button className="px-12 py-4 rounded-xl border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 hover:scale-105 font-bold text-lg transition-all duration-300">
                   Live Demo
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="grid grid-cols-3 gap-5 pt-6">
                 {[
                   { value: '100K+', label: 'Active Users' },
                   { value: '5M+', label: 'Messages' },
                   { value: '99.9%', label: 'Uptime' }
                 ].map((stat, i) => (
-                  <div key={i} className="text-center p-4 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:scale-105 transition-all backdrop-blur-sm">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <div key={i} className="text-center p-5 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:scale-105 transition-all backdrop-blur-sm">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                       {stat.value}
                     </div>
-                    <div className="text-gray-400 text-xs mt-1">{stat.label}</div>
+                    <div className="text-gray-400 text-sm mt-2">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right - Chat Mockup - FIXED POSITION */}
+            {/* Right - Chat Mockup */}
             <div className="relative lg:block hidden">
               <div className="rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden backdrop-blur-xl" style={{ 
-                background: 'linear-gradient(135deg, rgba(59, 47, 143, 0.2) 0%, rgba(42, 31, 95, 0.2) 100%)'
+                background: 'linear-gradient(135deg, rgba(59, 47, 143, 0.15) 0%, rgba(42, 31, 95, 0.15) 100%)'
               }}>
                 <div className="px-6 py-4 flex items-center gap-2 border-b border-purple-500/20" style={{ 
-                  background: 'rgba(13, 5, 32, 0.5)'
+                  background: 'rgba(13, 5, 32, 0.4)'
                 }}>
                   <div className="w-3 h-3 rounded-full bg-red-500"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
-                <div className="p-8 space-y-4">
+                <div className="p-10 space-y-5">
                   <div className="flex justify-start">
-                    <div className="max-w-xs bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-5 py-3 shadow-lg">
+                    <div className="max-w-xs bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-6 py-4 shadow-lg">
                       <p className="text-white text-sm">Did you try the new chat app?</p>
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="max-w-xs rounded-2xl rounded-tr-sm px-5 py-3 shadow-lg" style={{ backgroundColor: 'rgba(59, 47, 143, 0.5)' }}>
+                    <div className="max-w-xs rounded-2xl rounded-tr-sm px-6 py-4 shadow-lg" style={{ backgroundColor: 'rgba(59, 47, 143, 0.4)' }}>
                       <p className="text-white text-sm">Yeah, it's clean and super smooth.</p>
                     </div>
                   </div>
                   <div className="flex justify-start">
-                    <div className="max-w-xs bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-5 py-3 flex items-center gap-2 shadow-lg">
+                    <div className="max-w-xs bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl rounded-tl-sm px-6 py-4 flex items-center gap-2 shadow-lg">
                       <p className="text-white text-sm">Finally something simple</p>
                       <span className="text-base">😊</span>
                     </div>
@@ -169,18 +167,18 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* FEATURES SECTION */}
-      <section id="features" className="py-20 px-6 min-h-screen">
+      <section id="features" className="py-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
               Everything you need. Nothing extra.
             </h2>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
               Powerful features designed to make your conversations smooth and enjoyable
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { icon: Zap, title: 'Instant Messaging', description: 'Send and receive messages instantly, without waiting or refreshing.', gradient: 'from-purple-500 to-purple-600' },
               { icon: MessageSquare, title: 'Reply to Messages', description: 'Reply to specific messages so conversations stay clear and easy to follow.', gradient: 'from-pink-500 to-pink-600' },
@@ -189,12 +187,12 @@ const LandingPage: React.FC = () => {
               { icon: TrendingUp, title: 'Smooth Scrolling', description: 'Scroll naturally through older messages without sudden jumps.', gradient: 'from-pink-500 to-purple-600' },
               { icon: Sparkles, title: 'AI Chat Assistance', description: 'Get smart reply suggestions, improve your messages, or chat with an AI assistant anytime.', gradient: 'from-purple-500 to-pink-600' }
             ].map((feature, index) => (
-              <div key={index} className="group p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 backdrop-blur-sm">
-                <div className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl`}>
-                  <feature.icon className="w-7 h-7 text-white" />
+              <div key={index} className="group p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl`}>
+                  <feature.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -202,40 +200,40 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* HOW IT WORKS SECTION */}
-      <section id="how-it-works" className="py-20 px-6 min-h-screen">
+      <section id="how-it-works" className="py-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-block px-5 py-2 bg-purple-600/20 rounded-full text-purple-300 text-xs font-bold mb-4 border border-purple-500/30 backdrop-blur-sm">
+          <div className="text-center mb-20">
+            <div className="inline-block px-6 py-2 bg-purple-600/20 rounded-full text-purple-300 text-sm font-bold mb-8 border border-purple-500/30 backdrop-blur-sm">
               THREE SIMPLE STEPS
             </div>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Get started in seconds</h2>
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">Get started in seconds</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10 mb-12">
+          <div className="grid md:grid-cols-3 gap-12 mb-16">
             {[
               { icon: Users, title: 'Create your account', description: 'Sign up with email in under 30 seconds. Quick and easy registration process.', gradient: 'from-purple-500 to-pink-500', step: '1' },
               { icon: MessageCircle, title: 'Find friends and start chats', description: 'Search and connect with people instantly. Start meaningful conversations.', gradient: 'from-pink-500 to-purple-500', step: '2' },
               { icon: Sparkles, title: 'Talk freely, without noise', description: 'Clean interface, no distractions, just pure conversation with your friends.', gradient: 'from-purple-500 to-indigo-500', step: '3' }
             ].map((step, index) => (
-              <div key={index} className="text-center space-y-4 group">
+              <div key={index} className="text-center space-y-6 group">
                 <div className="relative inline-block">
-                  <div className={`w-24 h-24 mx-auto bg-gradient-to-br ${step.gradient} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`}>
-                    <step.icon className="w-12 h-12 text-white" />
+                  <div className={`w-32 h-32 mx-auto bg-gradient-to-br ${step.gradient} rounded-3xl flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`}>
+                    <step.icon className="w-16 h-16 text-white" />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
                     {step.step}
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-white">{step.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed px-2">{step.description}</p>
+                <h3 className="text-2xl font-bold text-white">{step.title}</h3>
+                <p className="text-gray-400 leading-relaxed px-4">{step.description}</p>
               </div>
             ))}
           </div>
 
-          <div className="text-center bg-purple-500/5 border border-purple-500/20 rounded-3xl p-10 backdrop-blur-sm">
-            <h3 className="text-3xl font-bold text-white mb-4">Ready to start chatting?</h3>
-            <p className="text-lg text-gray-300 mb-6">Join Chatify and enjoy messaging without distractions.</p>
-            <button onClick={() => navigate('/auth')} className="group px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-base hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 inline-flex items-center gap-2">
+          <div className="text-center bg-purple-500/5 border border-purple-500/20 rounded-3xl p-12 backdrop-blur-sm">
+            <h3 className="text-4xl font-bold text-white mb-6">Ready to start chatting?</h3>
+            <p className="text-xl text-gray-300 mb-8">Join Chatify and enjoy messaging without distractions.</p>
+            <button onClick={() => navigate('/auth')} className="group px-12 py-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 inline-flex items-center gap-3">
               Create Free Account
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
             </button>
@@ -244,29 +242,29 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* CONTACT SECTION */}
-      <section id="contact" className="py-20 px-6 min-h-screen">
+      <section id="contact" className="py-24 px-8 min-h-screen">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">Get in Touch</h2>
-            <p className="text-lg text-gray-400">Have questions? We'd love to hear from you.</p>
+          <div className="text-center mb-20">
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">Get in Touch</h2>
+            <p className="text-xl text-gray-400">Have questions? We'd love to hear from you.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-10">
-            <div className="space-y-5">
-              <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <h3 className="text-3xl font-bold text-white mb-8">Contact Information</h3>
               {[
                 { icon: Mail, title: 'Email', lines: ['support@chatify.com', 'hello@chatify.com'], gradient: 'from-purple-500 to-pink-500' },
                 { icon: Phone, title: 'Phone', lines: ['+1 (555) 123-4567', 'Mon-Fri 9am-6pm EST'], gradient: 'from-pink-500 to-purple-500' },
                 { icon: MapPin, title: 'Office', lines: ['123 Tech Street', 'San Francisco, CA 94105'], gradient: 'from-purple-500 to-indigo-500' }
               ].map((contact, index) => (
-                <div key={index} className="flex items-start gap-5 p-5 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 group backdrop-blur-sm">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${contact.gradient} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-xl`}>
-                    <contact.icon className="w-6 h-6 text-white" />
+                <div key={index} className="flex items-start gap-6 p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 group backdrop-blur-sm">
+                  <div className={`w-14 h-14 bg-gradient-to-br ${contact.gradient} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-xl`}>
+                    <contact.icon className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold text-base mb-1">{contact.title}</h4>
+                    <h4 className="text-white font-bold text-lg mb-2">{contact.title}</h4>
                     {contact.lines.map((line, i) => (
-                      <p key={i} className="text-gray-400 text-sm">{line}</p>
+                      <p key={i} className="text-gray-400">{line}</p>
                     ))}
                   </div>
                 </div>
@@ -274,20 +272,20 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div>
-              <form className="space-y-5 p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20 backdrop-blur-sm">
+              <form className="space-y-6 p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 backdrop-blur-sm">
                 <div>
-                  <label className="block text-white font-semibold mb-2 text-sm">Name</label>
-                  <input type="text" placeholder="Your name" className="w-full px-4 py-3 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 focus:outline-none transition-all backdrop-blur-sm text-sm" style={{ backgroundColor: 'rgba(13, 5, 32, 0.5)' }} />
+                  <label className="block text-white font-semibold mb-2">Name</label>
+                  <input type="text" placeholder="Your name" className="w-full px-4 py-3 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 focus:outline-none transition-all backdrop-blur-sm" style={{ backgroundColor: 'rgba(13, 5, 32, 0.5)' }} />
                 </div>
                 <div>
-                  <label className="block text-white font-semibold mb-2 text-sm">Email</label>
-                  <input type="email" placeholder="your.email@example.com" className="w-full px-4 py-3 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 focus:outline-none transition-all backdrop-blur-sm text-sm" style={{ backgroundColor: 'rgba(13, 5, 32, 0.5)' }} />
+                  <label className="block text-white font-semibold mb-2">Email</label>
+                  <input type="email" placeholder="your.email@example.com" className="w-full px-4 py-3 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 focus:outline-none transition-all backdrop-blur-sm" style={{ backgroundColor: 'rgba(13, 5, 32, 0.5)' }} />
                 </div>
                 <div>
-                  <label className="block text-white font-semibold mb-2 text-sm">Message</label>
-                  <textarea rows={4} placeholder="How can we help you?" className="w-full px-4 py-3 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 focus:outline-none transition-all resize-none backdrop-blur-sm text-sm" style={{ backgroundColor: 'rgba(13, 5, 32, 0.5)' }}></textarea>
+                  <label className="block text-white font-semibold mb-2">Message</label>
+                  <textarea rows={5} placeholder="How can we help you?" className="w-full px-4 py-3 border border-purple-500/30 rounded-xl text-white placeholder-gray-500 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 focus:outline-none transition-all resize-none backdrop-blur-sm" style={{ backgroundColor: 'rgba(13, 5, 32, 0.5)' }}></textarea>
                 </div>
-                <button type="submit" className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-base hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center justify-center gap-2 group">
+                <button type="submit" className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 flex items-center justify-center gap-2 group">
                   Send Message
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                 </button>
@@ -298,16 +296,16 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-10 px-6 border-t border-purple-500/10">
+      <footer className="py-12 px-8 border-t border-purple-500/10">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
-              <span className="font-semibold text-white text-sm">© 2026 Chatify</span>
+              <span className="font-semibold text-white">© 2026 Chatify</span>
             </div>
-            <div className="flex gap-6 text-xs text-gray-400">
+            <div className="flex gap-8 text-sm text-gray-400">
               <a href="#" className="hover:text-purple-400 transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-purple-400 transition-colors">Terms of Service</a>
               <button onClick={() => scrollToSection('contact')} className="hover:text-purple-400 transition-colors">Contact Us</button>
