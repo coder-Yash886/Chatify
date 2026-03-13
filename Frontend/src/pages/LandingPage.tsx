@@ -446,7 +446,9 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* CONTACT SECTION */}
-      <section id="contact" className="py-24 px-8 min-h-screen">
+      <section id="contact" className="py-24 px-8 min-h-screen"
+      style={{marginLeft:"80px", marginRight:"20px"}}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6"
@@ -461,10 +463,12 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-12"
+          style={{marginLeft:"25px", marginRight:"30px"}}
+          >
             <div className="space-y-6">
               <h3 className="text-3xl font-bold text-white mb-8"
-               style={{marginTop:"20px"}}
+               style={{marginTop:"35px"}}
               >
                 Contact Information
               </h3>
@@ -491,7 +495,7 @@ const LandingPage: React.FC = () => {
                 <div
                   key={index}
                   className="flex items-start gap-6 p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20 hover:border-purple-400/50 hover:scale-105 transition-all duration-300 group backdrop-blur-sm"
-                   style={{marginTop:"20px"}}
+                   style={{marginTop:"25px"}}
                 >
                   <div
                     className={`w-14 h-14 bg-gradient-to-br ${contact.gradient} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-xl`}
@@ -514,7 +518,7 @@ const LandingPage: React.FC = () => {
 
             <div>
               <form className="space-y-6 p-8 rounded-2xl bg-purple-500/5 border border-purple-500/20 backdrop-blur-sm"
-               style={{marginTop:"80px"}}
+               style={{marginTop:"80px" }}
               >
                 <div>
                   <label className="block text-white font-semibold mb-2">
@@ -539,7 +543,9 @@ const LandingPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-white font-semibold mb-2">
+                  <label className="block text-white font-semibold mb-2"
+                  style={{padding:"7px"}}
+                  >
                     Message
                   </label>
                   <textarea
