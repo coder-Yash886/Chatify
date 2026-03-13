@@ -98,7 +98,9 @@ app.get('/api/health', (_req, res) => {
 });
 
 /* ================== AUTH ROUTES ================== */
-
+app.get('/',()=>{
+  console.log('hello world')
+})
 app.post('/api/register', register);
 app.post('/api/verify-registration', verifyRegistrationOTP);
 app.post('/api/login', login);
