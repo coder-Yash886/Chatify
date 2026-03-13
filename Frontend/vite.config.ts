@@ -13,13 +13,12 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://13.204.122.45/',
-        changeOrigin: true,
-      },
-    },
-  },
+server: {
+  proxy: {
+    '/api': {
+      target: 'http://13.204.122.45:3000',
+      changeOrigin: true,
+    }
+  }
+}
 })
