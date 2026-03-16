@@ -447,7 +447,7 @@ const LandingPage: React.FC = () => {
 
       {/* CONTACT SECTION */}
       <section id="contact" className="py-24 px-8 min-h-screen"
-      style={{marginLeft:"120px", marginRight:"100px"}}
+      style={{marginLeft:"100px", marginRight:"100px"}}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
