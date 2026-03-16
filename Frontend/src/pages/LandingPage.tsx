@@ -447,7 +447,7 @@ const LandingPage: React.FC = () => {
 
       {/* CONTACT SECTION */}
       <section id="contact" className="py-24 px-8 min-h-screen"
-      style={{marginLeft:"80px", marginRight:"20px"}}
+      style={{marginLeft:"120px", marginRight:"100px"}}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
@@ -464,7 +464,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-12"
-          style={{marginLeft:"25px", marginRight:"30px"}}
+          //style={{marginLeft:"25px", marginRight:"30px"}}
           >
             <div className="space-y-6">
               <h3 className="text-3xl font-bold text-white mb-8"
@@ -570,7 +570,9 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-8 border-t border-purple-500/10">
+      <footer className="py-12 px-8 border-t border-purple-500/10"
+      style={{marginRight:"10px"}}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-3"
