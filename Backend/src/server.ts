@@ -82,12 +82,10 @@ app.use(
 );
 
 app.use(helmet());
-app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
+app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '../public')));
-
-/* ================== HEALTH CHECK ================== */
+app.use(express.static(path.join(__dirname, '../public')))
 
 app.get('/api/health', (_req, res) => {
   res.json({
@@ -97,7 +95,6 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-/* ================== AUTH ROUTES ================== */
 
 app.post('/api/register', register);
 app.post('/api/verify-registration', verifyRegistrationOTP);
@@ -106,29 +103,24 @@ app.post('/api/resend-registration-otp', resendOTP);
 app.post('/api/logout', logout);
 app.get('/api/verify', authenticateToken, verify);
 
-/* ================== ROOM ROUTES ================== */
 
 app.get('/api/rooms', authenticateToken, getRooms);
 app.post('/api/rooms', authenticateToken, createRoom);
 
-/* ================== FRIEND ROUTES ================== */
 
 app.get('/api/friends', authenticateToken, getFriends);
 app.post('/api/friends/add', authenticateToken, addFriend);
 
-/* ================== NOTIFICATION ROUTES ================== */
 
 app.get('/api/notifications', authenticateToken, getNotifications);
 app.post('/api/notifications/read', authenticateToken, markAsRead);
 
-/* ================== DIRECT MESSAGE ROUTES ================== */
 
 app.get('/api/dm/conversations', authenticateToken, getConversations);
 app.get('/api/dm/messages/:otherUserId', authenticateToken, getDirectMessages);
 app.post('/api/dm/send', authenticateToken, sendDirectMessage);
 app.post('/api/dm/read', authenticateToken, markDMAsRead);
 
-/* ================== PROFILE ROUTES (UPDATED) ================== */
 
 app.get('/api/profile', authenticateToken, getProfile); // Get own profile
 app.get('/api/profile/:userId', authenticateToken, getUserProfile); // Get user profile by ID
@@ -160,16 +152,15 @@ app.post('/api/groups/leave', authenticateToken, leaveGroup);
 
 app.get('/api/users', authenticateToken, getAllUsers);
 
-/* ================== WEBSOCKET ================== */
 
 setupWebSocketServer(server);
 
-/* ================== SERVER START WITH DB CONNECTION ================== */
+//console.log(mongoose)
 
 const startServer = async () => {
   try {
     console.log('⏳ Connecting to MongoDB...');
-
+    
     await mongoose.connect(config.MONGO_URI);
 
     console.log('✅ MongoDB Connected Successfully');
@@ -193,7 +184,6 @@ const startServer = async () => {
 
 startServer();
 
-/* ================== GRACEFUL SHUTDOWN ================== */
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
